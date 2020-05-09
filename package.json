@@ -8,6 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cross-env ENVIRONMENT=production tsc && npm link"
   },
+  "repository": "https://github.com/KayDomrose/clocker",
   "author": "",
   "license": "ISC",
   "devDependencies": {
