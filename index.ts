@@ -3,7 +3,7 @@
 import minimist from "minimist";
 import add from "./src/actions/add";
 import init from "./src/actions/init";
-import {VERSION} from "./src/variables";
+import {BASE_PATH, VERSION} from "./src/variables";
 import {logColorCommand} from "./src/helpers/log";
 import list from "./src/actions/list";
 import start from "./src/actions/start";
@@ -18,21 +18,30 @@ const actions: {[k: string]: {(args: minimist.ParsedArgs):void}} = {
 }
 
 const run = (args: minimist.ParsedArgs) => {
-    if (args._.length === 0 || !Object.keys(actions).includes(args._[0])) {
+    if (args._.length === 0 || !Object.keys(actions).includes(args._[0]) || args?.help) {
         console.log(
 `clocker - CLoud doCKER 
 v${VERSION}
 
-Usage: ${logColorCommand('clocker ACTION')}
+Usage ${logColorCommand('clocker ACTION OPTION')}
 
-Actions:
-    ${logColorCommand('init')}                              Initialize clocker config
+Actions
+    ${logColorCommand('init')}                              Initialize clocker
     ${logColorCommand('list')}                              List all servers with state
     ${logColorCommand('add')}                               Configure a new remote cloud server
-    ${logColorCommand('start ID')}                          Create and provision a server
-    ${logColorCommand('stop ID')}                           Destroy a server
+    ${logColorCommand('start ID')}                          Start a server
+    ${logColorCommand('stop ID')}                           Stop a server
     ${logColorCommand('deploy ID DOCKER-COMPOSE-FILE')}     Deploy a docker-compose file to a server
+    
+Options
+    ${logColorCommand('--version')}                         Show clocker version
+    ${logColorCommand('--help')}                            Show this documentation
 `)
+        return;
+    }
+
+    if (args?.version) {
+        console.log(VERSION);
         return;
     }
 

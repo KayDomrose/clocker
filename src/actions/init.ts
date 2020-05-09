@@ -27,54 +27,15 @@ const createHomeDir = ():boolean => {
 const init = async () => {
     if (checkInit()) {
         console.log(`
-${logColorSuccess('Clocker is already initialized and ready to be uses.')}
+${logColorSuccess('Clocker is already initialized.')}
 
 Next Steps:
-    ${logColorCommand('clocker servers')}       Get all configured servers
-    ${logColorCommand('clocker servers add')}   Add a new server
+    ${logColorCommand('clocker list')}      Get all configured servers
+    ${logColorCommand('clocker add')}       Add a new server
         `);
         return;
     }
     createHomeDir();
-
-
-//     if (fs.existsSync('config.json') || fs.existsSync('.env.clocker')) {
-//         console.log(chalk.red('Found previous clocker configuration.'));
-//         console.log(`These files will be overwritten when you continue:
-//     - clocker.json
-//     - .env.clocker
-// `);
-//         const r = await prompts({
-//             type: 'confirm',
-//             name: 'overwrite',
-//             message: 'Do you want to continue?',
-//             initial: false
-//         });
-//
-//         if (!r.overwrite) {
-//             console.log('Skip initialization');
-//             return;
-//         }
-//     }
-//
-//
-//     console.log('Answer these questions to create your clocker config.\nNothing will be created yet!\n');
-//     const config = await requestConfig();
-//
-//     const c = saveConfig(config);
-//     saveEnv(config);
-//     copyTerraformConfig(c);
-//
-//     console.log(`
-// ${chalk.green('clocker initialized!')}
-//
-// Created files:
-//     ${chalk.green('terraform.tf')}      Terraform configuration
-//     ${chalk.green('clocker.json')}      Containing configuration for version control
-//     ${chalk.green('.env.docker')}       Containing secrets
-//
-// Run ${chalk.blue('clocker up')} to create the server and deploy your docker-compose.yml.
-// `)
 };
 
 export default init;
