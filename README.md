@@ -85,3 +85,10 @@ As most cloud server providers will still charge you even when the server is sto
 
 ## Limitations
 1. There is no persistent storage (yet) to store files created or used in your docker-compose.
+
+## Development
+
+1. Clone repo
+2. Install dependencies `npm install` (Terraform and Docker are also needed)
+3. Create environment `cp .env.example .env` and configure
+4. Run commands `npm run command CLOCKER-ACTION CLOCKER-ARGS`: `npm run command init`

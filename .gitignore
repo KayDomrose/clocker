@@ -1,4 +1,5 @@
-.env.clocker
+.env*
+!.env.example
 .DS_Store
 .clocker
 .idea
