@@ -1,15 +1,23 @@
 {
   "name": "clocker",
   "version": "0.1.0",
-  "description": "",
+  "description": "Configure and provision cloud servers, ready to deploy your docker-compose project.",
+  "author": {
+    "name": "Kay Domrose",
+    "email": "kay@domrose.org"
+  },
+  "homepage": "https://github.com/KayDomrose/clocker#readme",
+  "keywords": ["docker", "docker-compose", "terraform", "deploy", "Hetzner Cloud", "hcloud"],
   "main": "build/index.js",
   "scripts": {
     "command": "cross-env ENVIRONMENT=local ts-node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cross-env ENVIRONMENT=production tsc && npm link"
   },
-  "repository": "https://github.com/KayDomrose/clocker",
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KayDomrose/clocker.git"
+  },
   "license": "ISC",
   "devDependencies": {
     "@types/axios": "^0.14.0",
@@ -36,5 +44,8 @@
   },
   "bin": {
     "clocker": "build/index.js"
-  }
+  },
+  "files": [
+    "build"
+  ]
 }
