@@ -16,6 +16,7 @@ No servers configured.
 
 Run ${logColorCommand('clocker add')} to configure a new server.        
         `);
+        return;
     }
 
     const table = new Table({
