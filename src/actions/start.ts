@@ -1,13 +1,25 @@
-import minimist from "minimist";
-import {getServerDir, getServers, isServerReady, serverIds, updateServer} from "../helpers/servers";
-import {logColorCommand, logColorServer, logColorSuccess, logError, logSuccess} from "../helpers/log";
-import {BaseConfig} from "./init";
-import {Provider} from "../providers/Provider";
-import {getProvider} from "../provider";
+import minimist from 'minimist';
+import {
+    getServerDir,
+    getServers,
+    isServerReady,
+    serverIds,
+    updateServer,
+} from '../helpers/servers';
+import {
+    logColorCommand,
+    logColorServer,
+    logColorSuccess,
+    logError,
+    logSuccess,
+} from '../helpers/log';
+import { BaseConfig } from './init';
+import { Provider } from '../providers/Provider';
+import { getProvider } from '../provider';
 // @ts-ignore
 import spawn from 'await-spawn';
-import {TEST_INTERVAL_SECONDS, TEST_INTERVAL_TRIES} from "../variables";
-import {checkInitOrFail} from "../helpers/check-init";
+import { TEST_INTERVAL_SECONDS, TEST_INTERVAL_TRIES } from '../variables';
+import { checkInitOrFail } from '../helpers/check-init';
 
 const waitForServer = async (ip: string) => {
     console.log(`\nWaiting for server to be ready ...`);
@@ -20,18 +32,16 @@ const waitForServer = async (ip: string) => {
         if (isReady) {
             return true;
         }
-        await new Promise(resolve => setTimeout(resolve, TEST_INTERVAL_SECONDS * 1000));
+        await new Promise((resolve) => setTimeout(resolve, TEST_INTERVAL_SECONDS * 1000));
         times++;
     }
 
     return false;
-
-
 };
 
 const getServerIpFromTerraform = async (path: string): Promise<string> => {
     try {
-        const stdOut:Buffer = await spawn('terraform', ['output', 'ip_address'], {cwd: path});
+        const stdOut: Buffer = await spawn('terraform', ['output', 'ip_address'], { cwd: path });
         return stdOut.toString().replace('\n', '');
     } catch (e) {
         console.error(e.stderr.toString());
@@ -39,33 +49,33 @@ const getServerIpFromTerraform = async (path: string): Promise<string> => {
     }
 };
 
-const startAndProvisionTerraform = async (path: string, config:BaseConfig, provider: Provider, verbose: boolean = false) => {
+const startAndProvisionTerraform = async (
+    path: string,
+    config: BaseConfig,
+    provider: Provider,
+    verbose: boolean = false
+) => {
     if (!verbose) {
         console.log('\nCreating server ...');
     }
 
-    const args = [
-        'apply',
-        '--auto-approve',
-        '--input=false',
-        path
-    ];
+    const args = ['apply', '--auto-approve', '--input=false', path];
 
-    const stdOut:Buffer = await spawn('terraform', args, {
+    const stdOut: Buffer = await spawn('terraform', args, {
         cwd: path,
-        shell: true
+        shell: true,
     });
     console.log(verbose ? stdOut.toString() : logColorSuccess('Created'));
-}
+};
 
 const initTerraform = async (path: string, verbose: boolean = false) => {
     if (!verbose) {
         console.log('\nInitializing terraform ...');
     }
 
-    const stdOut:Buffer = await spawn('terraform', ['init'], {cwd: path});
+    const stdOut: Buffer = await spawn('terraform', ['init'], { cwd: path });
     console.log(verbose ? stdOut.toString() : logColorSuccess('Initialized'));
-}
+};
 
 const start = async (args: minimist.ParsedArgs) => {
     if (!checkInitOrFail()) {
@@ -86,8 +96,8 @@ const start = async (args: minimist.ParsedArgs) => {
         return;
     }
 
-    const verbose:boolean = args?.v || args?.verbose;
-    const serverConfig: BaseConfig = getServers().find(server => server.id === serverId)!;
+    const verbose: boolean = args?.v || args?.verbose;
+    const serverConfig: BaseConfig = getServers().find((server) => server.id === serverId)!;
     const serverPath = getServerDir(serverConfig);
     const provider = getProvider(serverConfig.provider);
 
@@ -103,8 +113,10 @@ const start = async (args: minimist.ParsedArgs) => {
 
     const ip: string = await getServerIpFromTerraform(serverPath);
 
-    if (!await waitForServer(ip)) {
-        logError(`Server is not ready after ${TEST_INTERVAL_SECONDS * TEST_INTERVAL_TRIES} seconds.`);
+    if (!(await waitForServer(ip))) {
+        logError(
+            `Server is not ready after ${TEST_INTERVAL_SECONDS * TEST_INTERVAL_TRIES} seconds.`
+        );
         return;
     }
     logSuccess('Server ready');
@@ -112,8 +124,12 @@ const start = async (args: minimist.ParsedArgs) => {
 
     logSuccess(`\nServer ${logColorServer(serverId)} (${logColorServer(ip)}) started!`);
     logError('You will now be charged by your server provider while this server is running.');
-    console.log(`\nTo deploy your docker containers, run ${logColorCommand(`clocker deploy ${serverConfig.id} DOCKER-COMPOSE-FILE`)}`);
+    console.log(
+        `\nTo deploy your docker containers, run ${logColorCommand(
+            `clocker deploy ${serverConfig.id} DOCKER-COMPOSE-FILE`
+        )}`
+    );
     console.log(`To stop the server, run ${logColorCommand(`clocker stop ${serverConfig.id}`)}`);
-}
+};
 
 export default start;

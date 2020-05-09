@@ -1,21 +1,29 @@
-import minimist from "minimist";
-import {checkInitOrFail} from "../helpers/check-init";
-import {logColorCommand, logColorServer, logColorSuccess, logError, logSuccess} from "../helpers/log";
-import {getServerDir, getServers, serverIds} from "../helpers/servers";
-import {BaseConfig} from "./init";
+import minimist from 'minimist';
+import { checkInitOrFail } from '../helpers/check-init';
+import {
+    logColorCommand,
+    logColorServer,
+    logColorSuccess,
+    logError,
+    logSuccess,
+} from '../helpers/log';
+import { getServerDir, getServers, serverIds } from '../helpers/servers';
+import { BaseConfig } from './init';
 // @ts-ignore
 import spawn from 'await-spawn';
 
-const destroyTerraform = async (path:string, verbose: boolean = false):Promise<boolean> => {
+const destroyTerraform = async (path: string, verbose: boolean = false): Promise<boolean> => {
     try {
-        const stdOut:Buffer = await spawn('terraform', ['destroy', '--auto-approve'], {cwd: path});
+        const stdOut: Buffer = await spawn('terraform', ['destroy', '--auto-approve'], {
+            cwd: path,
+        });
         console.log(verbose ? stdOut.toString() : logColorSuccess('Server stopped.'));
         return true;
     } catch (e) {
         console.error(e.stderr.toString());
         return false;
     }
-}
+};
 
 const stop = async (args: minimist.ParsedArgs) => {
     if (!checkInitOrFail()) {
@@ -36,13 +44,13 @@ const stop = async (args: minimist.ParsedArgs) => {
         return;
     }
 
-    const verbose:boolean = args?.v || args?.verbose;
-    const serverConfig: BaseConfig = getServers().find(server => server.id === serverId)!;
+    const verbose: boolean = args?.v || args?.verbose;
+    const serverConfig: BaseConfig = getServers().find((server) => server.id === serverId)!;
     const serverPath = getServerDir(serverConfig);
 
     console.log(`Stopping ${logColorServer(serverId)}`);
 
     await destroyTerraform(serverPath, verbose);
-}
+};
 
 export default stop;

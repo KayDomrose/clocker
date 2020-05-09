@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 
-import minimist from "minimist";
-import add from "./src/actions/add";
-import init from "./src/actions/init";
-import {BASE_PATH, VERSION} from "./src/variables";
-import {logColorCommand, logColorSuccess, logSuccess} from "./src/helpers/log";
-import list from "./src/actions/list";
-import start from "./src/actions/start";
-import stop from "./src/actions/stop";
+import minimist from 'minimist';
+import add from './src/actions/add';
+import init from './src/actions/init';
+import { VERSION } from './src/variables';
+import { logColorCommand, logColorSuccess, logSuccess } from './src/helpers/log';
+import list from './src/actions/list';
+import start from './src/actions/start';
+import stop from './src/actions/stop';
 
-const actions: {[k: string]: {(args: minimist.ParsedArgs):void}} = {
-    'init': init,
-    'add': add,
-    'list': list,
-    'start': start,
-    'stop': stop,
-}
+const actions: { [k: string]: { (args: minimist.ParsedArgs): void } } = {
+    init: init,
+    add: add,
+    list: list,
+    start: start,
+    stop: stop,
+};
 
 const run = (args: minimist.ParsedArgs) => {
     if (args?.version) {
@@ -40,7 +40,7 @@ Actions
 Options
     ${logColorCommand('--version')}                         Show clocker version
     ${logColorCommand('--help')}                            Show this documentation
-`)
+`);
         return;
     }
 

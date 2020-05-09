@@ -1,16 +1,16 @@
 import fs from 'fs';
-import {BASE_PATH} from "../variables";
-import {logColorCommand, logColorSuccess, logNew, logSuccess} from "../helpers/log";
-import {writeJson} from "../helpers/file";
-import checkInit from "../helpers/check-init";
+import { BASE_PATH } from '../variables';
+import { logColorCommand, logColorSuccess, logNew, logSuccess } from '../helpers/log';
+import { writeJson } from '../helpers/file';
+import checkInit from '../helpers/check-init';
 
 export interface BaseConfig {
     id: string;
     provider: string;
-    ip: string | null
+    ip: string | null;
 }
 
-const createHomeDir = ():boolean => {
+const createHomeDir = (): boolean => {
     if (fs.existsSync(BASE_PATH)) {
         return true;
     }
@@ -22,7 +22,7 @@ const createHomeDir = ():boolean => {
     writeJson('servers', []);
 
     return true;
-}
+};
 
 const init = async () => {
     if (checkInit()) {

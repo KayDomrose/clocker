@@ -1,6 +1,12 @@
-import {checkInitOrFail} from "../helpers/check-init";
-import {getServers, isServerReady} from "../helpers/servers";
-import {logColorCommand, logColorError, logColorServer, logColorSuccess, logSuccess} from "../helpers/log";
+import { checkInitOrFail } from '../helpers/check-init';
+import { getServers, isServerReady } from '../helpers/servers';
+import {
+    logColorCommand,
+    logColorError,
+    logColorServer,
+    logColorSuccess,
+    logSuccess,
+} from '../helpers/log';
 import Table from 'cli-table';
 
 const list = async () => {
@@ -20,7 +26,7 @@ const list = async () => {
         head: ['ID', 'Provider', 'IP Address', 'State'],
         style: {
             head: ['grey'],
-        }
+        },
     });
 
     for (let i = 0; i < servers.length; i++) {
@@ -35,11 +41,11 @@ const list = async () => {
             logColorServer(server.id),
             server.provider,
             server.ip || '',
-            ready ? logColorSuccess('online') : logColorError('offline')
-        ])
+            ready ? logColorSuccess('online') : logColorError('offline'),
+        ]);
     }
 
     console.log(table.toString());
-}
+};
 
 export default list;

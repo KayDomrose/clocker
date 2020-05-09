@@ -1,9 +1,9 @@
-import {PromptObject} from "prompts";
-import {BaseConfig} from "../actions/init";
+import { PromptObject } from 'prompts';
+import { BaseConfig } from '../actions/init';
 
 export interface Provider {
-    getSelectorLabel():string
-    getAdditionalInitQuestions():PromptObject[]
-    getTerraformPath():string
-    mapConfigToTerraformVars(config:BaseConfig):any
+    getSelectorLabel(): string;
+    getAdditionalInitQuestions(): PromptObject[];
+    getTerraformPath(): string;
+    mapConfigToTerraformVars(config: BaseConfig): any;
 }
