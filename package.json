@@ -6,7 +6,7 @@
   "scripts": {
     "command": "cross-env ENVIRONMENT=local ts-node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cross-env ENVIRONMENT=production tsc"
+    "build": "cross-env ENVIRONMENT=production tsc && npm link"
   },
   "author": "",
   "license": "ISC",
