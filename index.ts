@@ -4,7 +4,7 @@ import minimist from "minimist";
 import add from "./src/actions/add";
 import init from "./src/actions/init";
 import {BASE_PATH, VERSION} from "./src/variables";
-import {logColorCommand} from "./src/helpers/log";
+import {logColorCommand, logColorSuccess, logSuccess} from "./src/helpers/log";
 import list from "./src/actions/list";
 import start from "./src/actions/start";
 import stop from "./src/actions/stop";
@@ -18,9 +18,13 @@ const actions: {[k: string]: {(args: minimist.ParsedArgs):void}} = {
 }
 
 const run = (args: minimist.ParsedArgs) => {
+    if (args?.version) {
+        console.log(VERSION);
+        return;
+    }
+
     if (args._.length === 0 || !Object.keys(actions).includes(args._[0]) || args?.help) {
-        console.log(
-`clocker - CLoud doCKER 
+        console.log(`${logColorSuccess('clocker - CLoud doCKER')} 
 v${VERSION}
 
 Usage ${logColorCommand('clocker ACTION OPTION')}
@@ -37,11 +41,6 @@ Options
     ${logColorCommand('--version')}                         Show clocker version
     ${logColorCommand('--help')}                            Show this documentation
 `)
-        return;
-    }
-
-    if (args?.version) {
-        console.log(VERSION);
         return;
     }
 

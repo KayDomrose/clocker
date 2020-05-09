@@ -11,11 +11,8 @@ const list = async () => {
     const servers = getServers();
 
     if (servers.length === 0) {
-        console.log(`
-No servers configured.
-
-Run ${logColorCommand('clocker add')} to configure a new server.        
-        `);
+        console.log('No servers configured.');
+        console.log(`Run ${logColorCommand('clocker add')} to configure a new server.`);
         return;
     }
 
