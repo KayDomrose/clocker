@@ -81,8 +81,7 @@ Use `clocker list` to check which server is running.
 ### Stop a server
 To stop a running server, use `clocker stop <server-id>`.
 
-As most cloud server providers will still charge you even when the server is stopped, clocker will instead destroy the server and create a new one when started again.  
-Using the terraform provisioning should make sure that everything works fine.
+As most cloud server providers will still charge you even when the server is stopped, clocker will instead destroy the server and create a new one when started again.
 
 ## Limitations
 1. There is no persistent storage (yet) to store files created or used in your docker-compose.
