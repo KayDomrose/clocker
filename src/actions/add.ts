@@ -53,6 +53,8 @@ const add = async () => {
     if (!checkInitOrFail()) {
         return;
     }
+    console.log('Answer these questions to configure a new server.');
+    console.log('No server will be created yet.');
 
     const config:BaseConfig = await requestConfig();
     config.ip = null;
