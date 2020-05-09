@@ -8,7 +8,6 @@ import prompts = require("prompts");
 import {addServer, serverIds} from "../helpers/servers";
 import {BASE_PATH} from "../variables";
 import {logColorCommand, logColorServer, logSuccess} from "../helpers/log";
-import {log} from "util";
 
 const requestConfig = async (): Promise<BaseConfig> => {
     const questions: PromptObject[] = [
