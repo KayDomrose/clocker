@@ -2,7 +2,7 @@
   "name": "clocker",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
     "command": "cross-env ENVIRONMENT=local ts-node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -31,5 +31,8 @@
     "dotenv": "^8.2.0",
     "minimist": "^1.2.5",
     "prompts": "^2.3.2"
+  },
+  "bin": {
+    "clocker": "build/index.js"
   }
 }
