@@ -40,10 +40,10 @@ It is by no means a professional tool to run your production application on.
 ## Installation
 
 ### Prerequisites 
-- terraform
-- docker
+- [Terraform](https://learn.hashicorp.com/terraform/getting-started/install)
+- [Docker](https://docs.docker.com/desktop/)
 
-### Download
+### Install clocker
 
 
 ## Usage
@@ -85,4 +85,4 @@ As most cloud server providers will still charge you even when the server is sto
 Using the terraform provisioning should make sure that everything works fine.
 
 ## Limitations
-1. There is no persistent storage yet to store files created or used in your docker-compose.
+1. There is no persistent storage (yet) to store files created or used in your docker-compose.
