@@ -1,0 +1,6 @@
+version: '3.7'
+services:
+  wordpress:
+    image: wordpress:latest
+    ports:
+    - "7000:80"

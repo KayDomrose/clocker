@@ -1,15 +1,18 @@
 import { checkInitOrFail } from '../helpers/check-init';
 import { Choice, PromptObject } from 'prompts';
-import * as fs from 'fs';
 import { getProvider, providers } from '../provider';
 import { Provider } from '../providers/Provider';
-import { BaseConfig } from './init';
 import prompts = require('prompts');
-import { addServer, serverIds } from '../helpers/servers';
-import { BASE_PATH } from '../variables';
 import { logColorCommand, logColorServer, logSuccess } from '../helpers/log';
+import { Server } from '../classes/Server';
+import { allServers } from '../helpers/servers';
 
-const requestConfig = async (): Promise<BaseConfig> => {
+export interface RequestConfig {
+    id: string;
+    provider: string;
+}
+
+const requestConfig = async (): Promise<RequestConfig> => {
     const questions: PromptObject[] = [
         {
             type: 'text',
@@ -17,7 +20,11 @@ const requestConfig = async (): Promise<BaseConfig> => {
             message: 'Unique id',
             initial: `test-server`,
             validate: (value) => {
-                if (serverIds().includes(value)) {
+                if (
+                    allServers()
+                        .map((s) => s.getId())
+                        .includes(value)
+                ) {
                     return 'Server id already used.';
                 }
 
@@ -40,14 +47,7 @@ const requestConfig = async (): Promise<BaseConfig> => {
         },
     ];
 
-    const initResponse = await prompts(questions);
-
-    const provider: Provider = getProvider(initResponse.provider);
-    const providerQuestions: PromptObject[] = provider.getAdditionalInitQuestions();
-
-    const providerResponse = await prompts(providerQuestions);
-
-    return { ...initResponse, ...providerResponse } as BaseConfig;
+    return (await prompts(questions)) as RequestConfig;
 };
 
 const add = async () => {
@@ -57,23 +57,22 @@ const add = async () => {
     console.log('Answer these questions to configure a new server.');
     console.log('No server will be created yet.');
 
-    const config: BaseConfig = await requestConfig();
-    config.ip = null;
-    const provider = getProvider(config.provider);
-    addServer(config);
+    const config: RequestConfig = await requestConfig();
 
-    const SERVER_DIR = `${BASE_PATH}/servers/${config.id}`;
-    fs.mkdirSync(SERVER_DIR);
-    fs.copyFileSync(provider.getTerraformPath(), `${BASE_PATH}/servers/${config.id}/terraform.tf`);
+    const server = Server.buildFromProviderConfig(config);
 
-    const terraformConfig = provider.mapConfigToTerraformVars(config);
-    const tfvarTemplate = Object.keys(terraformConfig)
-        .map((key) => `${key}="${terraformConfig[key]}"`)
-        .join('\n');
-    fs.writeFileSync(`${SERVER_DIR}/terraform.tfvars`, tfvarTemplate);
+    const providerQuestions: PromptObject[] = server.provider().getAdditionalInitQuestions();
+    const providerAnswers = await prompts(providerQuestions);
+    server.provider().setConfig(providerAnswers);
 
-    logSuccess(`Server ${logColorServer(config.id)} configured`);
-    console.log(`Run ${logColorCommand(`clocker start ${config.id}`)} to start this server.`);
+    if (server.save()) {
+        logSuccess(
+            `\nServer ${logColorServer(server.getId())} created at ${server.getServerPath()}`
+        );
+    }
+
+    console.log(`Run ${logColorCommand(`clocker start ${server.getId()}`)} to start this server.`);
+    console.log(`Run ${logColorCommand(`clocker list`)} to see all available servers.`);
 };
 
 export default add;

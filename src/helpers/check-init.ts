@@ -1,13 +1,9 @@
 import * as fs from 'fs';
-import { BASE_PATH } from '../variables';
+import { BASE_PATH, SERVERS_PATH } from '../variables';
 import { logColorCommand, logColorError } from './log';
 
 const checkInit = (): boolean => {
-    const files = ['servers.json'];
-    return (
-        fs.existsSync(BASE_PATH) &&
-        files.filter((f) => fs.existsSync(`${BASE_PATH}/${f}`)).length === files.length
-    );
+    return fs.existsSync(BASE_PATH) && fs.existsSync(SERVERS_PATH);
 };
 
 export const checkInitOrFail = (): boolean => {

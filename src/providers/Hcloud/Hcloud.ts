@@ -1,9 +1,8 @@
-import { Provider } from '../Provider';
+import { Provider, ProviderConfig } from '../Provider';
 import { PromptObject } from 'prompts';
-import { BaseConfig } from '../../actions/init';
 import * as fs from 'fs';
 
-export interface HcloudConfig extends BaseConfig {
+export interface HcloudConfig extends ProviderConfig {
     hcloudServerName: string;
     hcloudServerType: string;
     hcloudSSHPath: string;
@@ -11,7 +10,11 @@ export interface HcloudConfig extends BaseConfig {
     _hcloudToken: string;
 }
 
-class Hcloud implements Provider {
+class Hcloud extends Provider {
+    key(): string {
+        return 'hcloud';
+    }
+
     getAdditionalInitQuestions(): PromptObject[] {
         return [
             {
@@ -63,6 +66,16 @@ class Hcloud implements Provider {
         return `${__dirname}/hcloud.tf`;
     }
 
+    mapTerraformVarsToConfig(config: any): HcloudConfig {
+        return {
+            _hcloudToken: config.hcloud_token,
+            hcloudServerName: config.server_name,
+            hcloudServerType: config.server_type,
+            hcloudSSHLabel: config.ssh_key_name,
+            hcloudSSHPath: config.ssh_key_path,
+        };
+    }
+
     mapConfigToTerraformVars(config: HcloudConfig) {
         return {
             hcloud_token: config._hcloudToken,
@@ -70,7 +83,7 @@ class Hcloud implements Provider {
             server_type: config.hcloudServerType,
             ssh_key_name: config.hcloudSSHLabel,
             ssh_key_path: config.hcloudSSHPath,
-            cloud_init_path: __dirname + '/cloud-init.sh',
+            cloud_init_path: `${__dirname}/hcloud-cloud-init.sh`,
         };
     }
 }

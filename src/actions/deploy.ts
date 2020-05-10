@@ -1,24 +1,21 @@
 import minimist from 'minimist';
-import { checkInitOrFail } from '../helpers/check-init';
 import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
-import { getServerDir, getServers, isServerReady, serverIds } from '../helpers/servers';
-import { BaseConfig } from './init';
-import { getProvider } from '../provider';
 import * as fs from 'fs';
 // @ts-ignore
 import spawn from 'await-spawn';
-import { SERVER_USER, TEST_DOCKER_CONTAINER_PORT } from '../variables';
+import { SERVER_USER, VERBOSE } from '../variables';
+import { Server } from '../classes/Server';
+import { checkInitOrFail } from '../helpers/check-init';
 
-const validateDockerComposeFile = async (
-    path: string,
-    verbose: boolean = false
-): Promise<boolean> => {
+const validateDockerComposeFile = async (path: string): Promise<boolean> => {
     const command = 'docker-compose';
     const args = ['--file', path, 'config'];
-    console.log(`>> ${logColorCommand(command + ' ' + args.join(' '))}`);
+    if (VERBOSE) {
+        console.log(`>> ${logColorCommand(command + ' ' + args.join(' '))}`);
+    }
     try {
         const stdOut: Buffer = await spawn(command, args);
-        if (verbose) {
+        if (VERBOSE) {
             console.log('>>');
             console.log(stdOut.toString());
             console.log('<<');
@@ -30,9 +27,9 @@ const validateDockerComposeFile = async (
     }
 };
 
-const checkSSH = (ip: string, verbose: boolean = false): boolean => {
+const checkSSH = (ip: string): boolean => {
     const knownHostsFile = `${process.env.HOME}/.ssh/known_hosts`;
-    if (verbose) {
+    if (VERBOSE) {
         console.log(`>> Locking for known_hosts at ${knownHostsFile}.`);
     }
     if (!fs.existsSync(knownHostsFile)) {
@@ -41,7 +38,7 @@ const checkSSH = (ip: string, verbose: boolean = false): boolean => {
     }
 
     const knownHostContent: Buffer = fs.readFileSync(knownHostsFile);
-    if (verbose) {
+    if (VERBOSE) {
         console.log(`>> Checking if ip ${ip} exists in known_hosts.`);
     }
     if (!knownHostContent.toString().includes(ip)) {
@@ -57,7 +54,7 @@ const checkSSH = (ip: string, verbose: boolean = false): boolean => {
     return true;
 };
 
-const deployFile = async (filePath: string, serverIp: string, verbose: boolean = false) => {
+const deployFile = async (filePath: string, serverIp: string) => {
     const command = 'docker-compose';
     const args = [
         '--host',
@@ -67,12 +64,12 @@ const deployFile = async (filePath: string, serverIp: string, verbose: boolean =
         'up',
         '--detach',
     ];
-    if (verbose) {
+    if (VERBOSE) {
         console.log(`>> ${logColorCommand(command + ' ' + args.join(' '))}`);
     }
     try {
         const stdOut: Buffer = await spawn(command, args);
-        if (verbose) {
+        if (VERBOSE) {
             console.log(stdOut.toString());
         }
         return true;
@@ -87,60 +84,35 @@ const deploy = async (args: minimist.ParsedArgs) => {
         return;
     }
 
-    const verbose: boolean = args?.v || args?.verbose || args._.includes('verbose');
-    if (verbose) {
-        console.log('>> Verbose mode');
-    }
-
-    if (args._.length < 2) {
-        logError('Please provide a server id');
-        console.log(logColorCommand(`clocker deploy ID DOCKER-COMPOSE-FILE`));
-        return;
-    }
-
     const serverId: string = args._[1];
-
-    if (!serverIds().includes(serverId)) {
-        logError(`Can't find sever with id ${logColorServer(serverId)}`);
-        console.log(`Run ${logColorCommand('clocker list')} to see all configured servers.`);
-        return;
-    }
-
-    if (args._.length < 3) {
-        logError('Please provide a valid path to your docker-compose file');
-        console.log(
-            logColorCommand(`clocker deploy ${logColorServer(serverId)} docker-compose.yml`)
-        );
+    let server: Server | null = null;
+    try {
+        server = Server.buildFromId(serverId);
+    } catch (e) {
+        console.error(e);
         return;
     }
 
     const dockerComposeFile = args._[2];
-    console.log(`Deploying ${dockerComposeFile} to ${logColorServer(serverId)} ...\n`);
+    console.log(`Deploying ${dockerComposeFile} to ${logColorServer(serverId)} ...`);
 
     if (!fs.existsSync(dockerComposeFile)) {
         logError(`Can't find file at ${dockerComposeFile}`);
         return;
     }
 
+    console.log('\n');
     console.log('Validating docker-compose file ...');
-    if (!(await validateDockerComposeFile(dockerComposeFile, verbose))) {
+    if (!(await validateDockerComposeFile(dockerComposeFile))) {
         logError('Invalid');
         return;
     } else {
         logSuccess('Valid');
     }
 
-    const serverConfig: BaseConfig = getServers().find((server) => server.id === serverId)!;
-    const serverPath = getServerDir(serverConfig);
-    const provider = getProvider(serverConfig.provider);
-
-    console.log('\nChecking server ...');
-    if (verbose) {
-        console.log(
-            `>> Checking for HTTP 200: http://${serverConfig.ip}:${TEST_DOCKER_CONTAINER_PORT}`
-        );
-    }
-    if (!serverConfig.ip || !(await isServerReady(serverConfig.ip))) {
+    console.log('\n');
+    console.log('Checking server status ...');
+    if (!(await server.isReady())) {
         logError('Server is not running');
         console.log(
             `Run ${logColorCommand(
@@ -152,19 +124,21 @@ const deploy = async (args: minimist.ParsedArgs) => {
         logSuccess('Server is running');
     }
 
-    console.log('\nChecking ssh connection ...');
-    if (!checkSSH(serverConfig.ip, verbose)) {
+    console.log('\n');
+    console.log('Checking ssh connection ...');
+    if (!checkSSH(server.getIpAddress())) {
         return;
     } else {
         logSuccess('OK');
     }
 
-    console.log('\nDeploying ...');
-    if (!(await deployFile(dockerComposeFile, serverConfig.ip, verbose))) {
+    console.log('\n');
+    console.log('Deploying ...');
+    if (!(await deployFile(dockerComposeFile, server.getIpAddress()))) {
         return;
     } else {
         logSuccess('Docker-compose file deployed');
-        console.log(`Your services are now ready at http://${serverConfig.ip}.`);
+        console.log(`Your services are now ready at http://${server.getIpAddress()}.`);
     }
 };
 
