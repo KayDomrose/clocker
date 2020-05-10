@@ -8,6 +8,7 @@ import { logColorCommand, logColorSuccess, logSuccess } from './src/helpers/log'
 import list from './src/actions/list';
 import start from './src/actions/start';
 import stop from './src/actions/stop';
+import deploy from './src/actions/deploy';
 
 const actions: { [k: string]: { (args: minimist.ParsedArgs): void } } = {
     init: init,
@@ -15,6 +16,7 @@ const actions: { [k: string]: { (args: minimist.ParsedArgs): void } } = {
     list: list,
     start: start,
     stop: stop,
+    deploy: deploy,
 };
 
 const run = (args: minimist.ParsedArgs) => {

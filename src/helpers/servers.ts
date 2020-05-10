@@ -1,6 +1,6 @@
 import { BaseConfig } from '../actions/init';
 import { readJson, writeJson } from './file';
-import { BASE_PATH } from '../variables';
+import { BASE_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
 import axios, { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
 
@@ -31,7 +31,7 @@ export const updateServer = (serverId: string, key: 'ip', value: string) => {
 };
 
 export const isServerReady = async (ip: string): Promise<boolean> => {
-    const url = `http://${ip}:11111`;
+    const url = `http://${ip}:${TEST_DOCKER_CONTAINER_PORT}`;
 
     try {
         const result: AxiosResponse = await axiosRequest({
