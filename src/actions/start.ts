@@ -22,12 +22,11 @@ import { TEST_INTERVAL_SECONDS, TEST_INTERVAL_TRIES } from '../variables';
 import { checkInitOrFail } from '../helpers/check-init';
 
 const waitForServer = async (ip: string) => {
-    console.log(`\nWaiting for server to be ready ...`);
-    console.log('This may take a few minutes.');
+    console.log(`\nWaiting for server to be ready (this may take a few minutes) ...`);
 
     let times = 0;
     while (times < TEST_INTERVAL_TRIES) {
-        console.log(`Try ${times + 1} ...`);
+        console.log('.'.repeat(times + 1));
         const isReady = await isServerReady(ip);
         if (isReady) {
             return true;
