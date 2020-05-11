@@ -1,5 +1,5 @@
 import minimist from 'minimist';
-import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
+import { logColorCommand, logColorServer, logError, logHint, logSuccess } from '../helpers/log';
 import { TEST_INTERVAL_SECONDS, TEST_INTERVAL_TRIES } from '../variables';
 import { checkInitOrFail } from '../helpers/check-init';
 import { Server } from '../classes/Server';
@@ -53,6 +53,7 @@ const start = async (args: minimist.ParsedArgs) => {
 
     console.log('\n');
     console.log('Waiting for server to finish setup ...');
+    logHint('This may take some minutes.');
     if (!(await waitForServer(server))) {
         logError(`Server is not set up ${TEST_INTERVAL_SECONDS * TEST_INTERVAL_TRIES} seconds.`);
         return;
