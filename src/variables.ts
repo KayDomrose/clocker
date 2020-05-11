@@ -12,5 +12,3 @@ export const TEST_INTERVAL_TRIES = 12;
 export const TEST_DOCKER_CONTAINER_PORT = 11111;
 
 export const SERVER_USER = 'worker';
-
-export const VERBOSE = false;

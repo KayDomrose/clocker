@@ -3,7 +3,7 @@
 import minimist from 'minimist';
 import add from './src/actions/add';
 import init from './src/actions/init';
-import { VERBOSE, VERSION } from './src/variables';
+import { VERSION } from './src/variables';
 import { logColorCommand, logColorSuccess, logError } from './src/helpers/log';
 import list from './src/actions/list';
 import start from './src/actions/start';
@@ -63,6 +63,8 @@ const checkArgs = (args: minimist.ParsedArgs, action: Action): boolean => {
 };
 
 const run = (args: minimist.ParsedArgs) => {
+    global.verbose = args?.verbose || args?.v;
+
     if (args?.version) {
         console.log(VERSION);
         return;
@@ -89,7 +91,7 @@ Options
         return;
     }
 
-    if (VERBOSE) {
+    if (global.verbose) {
         console.log('>> Verbose mode');
     }
 

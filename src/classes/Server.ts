@@ -1,4 +1,4 @@
-import { SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT, VERBOSE } from '../variables';
+import { SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
 import { Provider } from '../providers/Provider';
 import * as fs from 'fs';
 import { getProvider } from '../provider';
@@ -89,7 +89,7 @@ export class Server {
     public async initializeTerraform(): Promise<boolean> {
         const command = 'terraform';
         const args = ['init'];
-        if (VERBOSE) {
+        if (global.verbose) {
             console.log(`>> Running ${logColorCommand(`${command} ${args.join(' ')}`)}`);
         }
 
@@ -98,7 +98,7 @@ export class Server {
                 cwd: this._path,
                 shell: true,
             });
-            if (VERBOSE) {
+            if (global.verbose) {
                 console.log('>>');
                 console.log(stdOur.toString());
                 console.log('<<');
@@ -113,7 +113,7 @@ export class Server {
     public async start(): Promise<boolean> {
         const startCommand = 'terraform';
         const startArgs = ['apply', '--auto-approve', '--input=false', this._path];
-        if (VERBOSE) {
+        if (global.verbose) {
             console.log(`>> Running ${logColorCommand(`${startCommand} ${startArgs.join(' ')}`)}`);
         }
 
@@ -122,7 +122,7 @@ export class Server {
                 cwd: this._path,
                 shell: true,
             });
-            if (VERBOSE) {
+            if (global.verbose) {
                 console.log('>>');
                 console.log(stdOut.toString());
                 console.log('<<');
@@ -132,7 +132,7 @@ export class Server {
             return false;
         }
 
-        if (VERBOSE) {
+        if (global.verbose) {
             console.log('>> Server created');
             console.log('>> Fetching IP');
         }
@@ -142,7 +142,7 @@ export class Server {
                 cwd: this._path,
             });
             this._ipAddress = stdOut.toString().replace('\n', '');
-            if (VERBOSE) {
+            if (global.verbose) {
                 console.log(`>> Saving IP ${this._ipAddress}`);
             }
             this.save();
@@ -155,18 +155,18 @@ export class Server {
     }
 
     public async isReady(): Promise<boolean> {
-        if (VERBOSE) {
+        if (global.verbose) {
             console.log(`>> Check if server ${this._id} is running.`);
         }
         if (!this._ipAddress) {
-            if (VERBOSE) {
+            if (global.verbose) {
                 console.log(`>> No ip address for ${this._id}`);
             }
             return false;
         }
 
         const url = `http://${this._ipAddress}:${TEST_DOCKER_CONTAINER_PORT}`;
-        if (VERBOSE) {
+        if (global.verbose) {
             console.log(`>> Fetching ${url}`);
         }
         try {
@@ -175,7 +175,7 @@ export class Server {
                 method: 'GET',
                 timeout: 1000,
             });
-            if (VERBOSE) {
+            if (global.verbose) {
                 console.log(`>> Fetch status: ${result.status}`);
             }
             return result.status === 200;
@@ -187,14 +187,14 @@ export class Server {
     public async stop(): Promise<boolean> {
         const command = 'terraform';
         const args = ['destroy', '--auto-approve'];
-        if (VERBOSE) {
+        if (global.verbose) {
             console.log(`>> Running ${logColorCommand(`${command} ${args.join(' ')}`)}`);
         }
         try {
             const stdOut: Buffer = await spawn(command, args, {
                 cwd: this._path,
             });
-            if (VERBOSE) {
+            if (global.verbose) {
                 console.log('>>');
                 console.log(stdOut.toString());
                 console.log('<<');

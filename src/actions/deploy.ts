@@ -3,19 +3,19 @@ import { logColorCommand, logColorServer, logError, logSuccess } from '../helper
 import * as fs from 'fs';
 // @ts-ignore
 import spawn from 'await-spawn';
-import { SERVER_USER, VERBOSE } from '../variables';
+import { SERVER_USER } from '../variables';
 import { Server } from '../classes/Server';
 import { checkInitOrFail } from '../helpers/check-init';
 
 const validateDockerComposeFile = async (path: string): Promise<boolean> => {
     const command = 'docker-compose';
     const args = ['--file', path, 'config'];
-    if (VERBOSE) {
+    if (global.verbose) {
         console.log(`>> ${logColorCommand(command + ' ' + args.join(' '))}`);
     }
     try {
         const stdOut: Buffer = await spawn(command, args);
-        if (VERBOSE) {
+        if (global.verbose) {
             console.log('>>');
             console.log(stdOut.toString());
             console.log('<<');
@@ -64,12 +64,12 @@ const deployFile = async (filePath: string, serverIp: string) => {
         'up',
         '--detach',
     ];
-    if (VERBOSE) {
+    if (global.verbose) {
         console.log(`>> ${logColorCommand(command + ' ' + args.join(' '))}`);
     }
     try {
         const stdOut: Buffer = await spawn(command, args);
-        if (VERBOSE) {
+        if (global.verbose) {
             console.log(stdOut.toString());
         }
         return true;
