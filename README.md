@@ -90,6 +90,7 @@ As most cloud server providers will still charge you even when the server is sto
 1. Clone repo
 2. Install dependencies `npm install` (Terraform and Docker are also needed)
 3. Create environment `cp .env.example .env` and configure
-4. Run commands `npm run command CLOCKER-ACTION CLOCKER-ARGS`: `npm run command init`
+4. Run commands `npm run command CLOCKER-ACTION CLOCKER-ARGS -- CLOCKER-OPTIONS`: `npm run command init`.  
+If you, for example, want to run a command in verbose mode, run `npm run command init -- --verbose`.
 
 After you are done, run `npm run build` to create a test-build. This will be linked with npm (`npm link`), so you can use clocker as you would normally (`clocker ACTION`).
