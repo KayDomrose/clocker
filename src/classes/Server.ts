@@ -10,9 +10,15 @@ import { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
 import { logColorCommand, logError } from '../helpers/log';
 
+export interface ServerDeployment {
+    composePath: string;
+    lastDeployment: Date | null;
+}
+
 export interface ServerConfiguration {
     provider: string;
     ip: string;
+    deployments: ServerDeployment[];
 }
 
 export interface ServerSavePaths {
@@ -26,6 +32,7 @@ export class Server {
     private _path: string = '';
     private _provider: Provider | null = null;
     private _ipAddress: string | null = null;
+    private _deployments: ServerDeployment[] = [];
 
     constructor(id: string) {
         this._id = id;
@@ -61,10 +68,32 @@ export class Server {
         this._ipAddress = ip;
     }
 
+    public addDeployment(deployment: ServerDeployment): boolean {
+        if (
+            this._deployments.some(
+                (d: ServerDeployment) => d.composePath === deployment.composePath
+            )
+        ) {
+            return false;
+        }
+
+        this._deployments = [...this._deployments, deployment];
+        return true;
+    }
+
+    public setDeployments(deployments: ServerDeployment[]) {
+        this._deployments = deployments;
+    }
+
+    public getDeployments(): ServerDeployment[] {
+        return this._deployments;
+    }
+
     public save(): ServerSavePaths {
         const config: ServerConfiguration = {
             provider: this._provider?.key() || '',
             ip: this._ipAddress || '',
+            deployments: this._deployments || [],
         };
         writeJson(this._path, 'config', config);
         const configPath = `${this._path}/config.json`;
@@ -278,6 +307,7 @@ export class Server {
         const server = new Server(id);
         server.setProvider(config.provider);
         server.setIpAddress(config.ip);
+        server.setDeployments(config.deployments || []);
         server.loadProviderConfig();
         return server;
     }
@@ -285,6 +315,7 @@ export class Server {
     public static buildFromProviderConfig(config: RequestConfig): Server {
         const server = new Server(config.id);
         server.setProvider(config.provider);
+        server.setDeployments([]);
         server.loadProviderConfig();
         return server;
     }

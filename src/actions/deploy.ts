@@ -6,6 +6,8 @@ import spawn from 'await-spawn';
 import { SERVER_USER } from '../variables';
 import { Server } from '../classes/Server';
 import { checkInitOrFail } from '../helpers/check-init';
+import * as os from 'os';
+import path from 'path';
 
 const validateDockerComposeFile = async (path: string): Promise<boolean> => {
     const command = 'docker-compose';
@@ -27,11 +29,17 @@ const validateDockerComposeFile = async (path: string): Promise<boolean> => {
     }
 };
 
-const deployFile = async (filePath: string, serverIp: string) => {
+const getAbsolutePath = (filepath: string, delim = '/'): string => {
+    const homedir = os.homedir();
+    filepath = filepath.replace(/\~/g, homedir + delim);
+    return path.resolve(filepath);
+};
+
+const deployFile = async (filePath: string, server: Server) => {
     const command = 'docker-compose';
     const args = [
         '--host',
-        `ssh://${SERVER_USER}@${serverIp}`,
+        `ssh://${SERVER_USER}@${server.getIpAddress()}`,
         '--file',
         filePath,
         'up',
@@ -45,6 +53,11 @@ const deployFile = async (filePath: string, serverIp: string) => {
         if (global.verbose) {
             console.log(stdOut.toString());
         }
+        server.addDeployment({
+            composePath: getAbsolutePath(filePath),
+            lastDeployment: new Date(),
+        });
+        server.save();
         return true;
     } catch (e) {
         logError(e.stderr.toString());
@@ -107,7 +120,7 @@ const deploy = async (args: minimist.ParsedArgs) => {
 
     console.log('\n');
     console.log('Deploying ...');
-    if (!(await deployFile(dockerComposeFile, server.getIpAddress()))) {
+    if (!(await deployFile(dockerComposeFile, server))) {
         return;
     } else {
         logSuccess('Docker-compose file deployed');
