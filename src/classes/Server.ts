@@ -226,6 +226,38 @@ export class Server {
         this._provider?.setConfig(config);
     }
 
+    public checkSSH(): boolean {
+        if (!this._ipAddress) {
+            logError(`No IP address for ${this._id}`);
+            return false;
+        }
+
+        const knownHostsFile = `${process.env.HOME}/.ssh/known_hosts`;
+        if (global.verbose) {
+            console.log(`>> Locking for known_hosts at ${knownHostsFile}.`);
+        }
+        if (!fs.existsSync(knownHostsFile)) {
+            logError(`known_hosts file missing at ${knownHostsFile}.`);
+            return false;
+        }
+
+        const knownHostContent: Buffer = fs.readFileSync(knownHostsFile);
+        if (global.verbose) {
+            console.log(`>> Checking if ip ${this._ipAddress} exists in known_hosts.`);
+        }
+        if (!knownHostContent.toString().includes(this._ipAddress!)) {
+            logError(`Fingerprint for ${this._ipAddress} not found in ${knownHostsFile}`);
+            console.log(
+                `Please run ${logColorCommand(
+                    `ssh ${SERVER_USER}@${this._ipAddress} exit`
+                )} and confirm.`
+            );
+            return false;
+        }
+
+        return true;
+    }
+
     public static buildFromId(id: string): Server {
         const serverPath = `${SERVERS_PATH}/${id}`;
 

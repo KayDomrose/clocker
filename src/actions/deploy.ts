@@ -27,33 +27,6 @@ const validateDockerComposeFile = async (path: string): Promise<boolean> => {
     }
 };
 
-const checkSSH = (ip: string): boolean => {
-    const knownHostsFile = `${process.env.HOME}/.ssh/known_hosts`;
-    if (global.verbose) {
-        console.log(`>> Locking for known_hosts at ${knownHostsFile}.`);
-    }
-    if (!fs.existsSync(knownHostsFile)) {
-        logError(`known_hosts file missing at ${knownHostsFile}.`);
-        return false;
-    }
-
-    const knownHostContent: Buffer = fs.readFileSync(knownHostsFile);
-    if (global.verbose) {
-        console.log(`>> Checking if ip ${ip} exists in known_hosts.`);
-    }
-    if (!knownHostContent.toString().includes(ip)) {
-        logError(`Fingerprint for ${ip} not found in ${knownHostsFile}`);
-        console.log(
-            `Please run ${logColorCommand(
-                `ssh ${SERVER_USER}@${ip} exit`
-            )} and confirm, then deploy again.`
-        );
-        return false;
-    }
-
-    return true;
-};
-
 const deployFile = async (filePath: string, serverIp: string) => {
     const command = 'docker-compose';
     const args = [
@@ -126,7 +99,7 @@ const deploy = async (args: minimist.ParsedArgs) => {
 
     console.log('\n');
     console.log('Checking ssh connection ...');
-    if (!checkSSH(server.getIpAddress())) {
+    if (!server.checkSSH()) {
         return;
     } else {
         logSuccess('OK');
