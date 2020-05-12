@@ -1,8 +1,8 @@
 import Hcloud from './providers/Hcloud/Hcloud';
-import { Provider } from './classes/Provider';
+import { BaseProvider } from './classes/BaseProvider';
 
-export const providers: { [key: string]: Provider } = {
+export const providers: { [key: string]: BaseProvider } = {
     hcloud: new Hcloud(),
 };
 
-export const getProvider = (key: string): Provider => providers[key];
+export const getProvider = (key: string): BaseProvider => providers[key];

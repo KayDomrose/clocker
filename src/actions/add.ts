@@ -1,7 +1,6 @@
 import { checkInitOrFail } from '../helpers/check-init';
 import { Choice, PromptObject } from 'prompts';
 import { getProvider, providers } from '../provider';
-import { Provider } from '../classes/Provider';
 import prompts = require('prompts');
 import { logColorCommand, logColorServer, logSuccess } from '../helpers/log';
 import { Server } from '../classes/Server';
@@ -37,7 +36,7 @@ const requestConfig = async (): Promise<RequestConfig> => {
             message: 'Cloud server provider',
             choices: Object.keys(providers).map(
                 (providerKey: string): Choice => {
-                    const provider: Provider = getProvider(providerKey);
+                    const provider = getProvider(providerKey);
                     return {
                         title: provider.getSelectorLabel(),
                         value: providerKey,

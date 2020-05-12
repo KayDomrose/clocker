@@ -3,18 +3,17 @@ import * as fs from 'fs';
 
 export interface ProviderConfig {}
 
-export interface Provider {
-    key(): string;
-    getSelectorLabel(): string;
-    getAdditionalInitQuestions(): PromptObject[];
-    getTerraformPath(): string;
-    getCloudInitPath(): string;
-    mapTerraformVarsToConfig(config: ProviderConfig): any;
-    mapConfigToTerraformVars(config: any): any;
-}
+export abstract class BaseProvider {
+    public abstract key(): string;
+    public abstract name(): string;
+    public abstract getSelectorLabel(): string;
+    public abstract getAdditionalInitQuestions(): PromptObject[];
+    public abstract getTerraformPath(): string;
+    public abstract getServerInfo(): string;
+    public abstract mapTerraformVarsToConfig(config: ProviderConfig): any;
+    public abstract mapConfigToTerraformVars(config: any): any;
 
-export abstract class Provider implements Provider {
-    private _config: any = {};
+    protected _config: any = {};
 
     setConfig(value: any) {
         this._config = value;

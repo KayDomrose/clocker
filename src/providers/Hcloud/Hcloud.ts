@@ -1,4 +1,4 @@
-import { Provider, ProviderConfig } from '../../classes/Provider';
+import { BaseProvider, ProviderConfig } from '../../classes/BaseProvider';
 import { PromptObject } from 'prompts';
 import * as fs from 'fs';
 
@@ -10,9 +10,18 @@ export interface HcloudConfig extends ProviderConfig {
     _hcloudToken: string;
 }
 
-class Hcloud extends Provider {
+class Hcloud extends BaseProvider {
     key(): string {
         return 'hcloud';
+    }
+
+    name(): string {
+        return 'Hetzner Cloud';
+    }
+
+    getServerInfo(): string {
+        const config: HcloudConfig = this._config;
+        return `${config.hcloudServerName} (${config.hcloudServerType})`;
     }
 
     getAdditionalInitQuestions(): PromptObject[] {

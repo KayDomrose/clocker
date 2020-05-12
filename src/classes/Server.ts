@@ -1,12 +1,12 @@
-import { SERVER_USER, SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
-import { Provider } from './Provider';
+import { SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
+import { BaseProvider } from './BaseProvider';
 import * as fs from 'fs';
 import { getProvider } from '../provider';
 import { readJson, writeJson } from '../helpers/file';
 import { RequestConfig } from '../actions/add';
 import { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
-import { logColorCommand, logError } from '../helpers/log';
+import { logError } from '../helpers/log';
 import run from '../helpers/command';
 
 export interface ServerDeployment {
@@ -29,7 +29,7 @@ export interface ServerSavePaths {
 export class Server {
     private readonly _id: string;
     private _path: string = '';
-    private _provider: Provider | null = null;
+    private _provider: BaseProvider | null = null;
     private _ipAddress: string | null = null;
     private _deployments: ServerDeployment[] = [];
 
@@ -107,7 +107,7 @@ export class Server {
         };
     }
 
-    public provider(): Provider {
+    public provider(): BaseProvider {
         if (this._provider === null) {
             throw new Error(`Provider not set for ${this._id}`);
         }
