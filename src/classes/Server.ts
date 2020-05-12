@@ -1,4 +1,4 @@
-import { SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
+import { SERVER_USER, SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
 import { Provider } from '../providers/Provider';
 import * as fs from 'fs';
 import { getProvider } from '../provider';
@@ -8,7 +8,7 @@ import { RequestConfig } from '../actions/add';
 import spawn from 'await-spawn';
 import { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
-import { logColorCommand } from '../helpers/log';
+import { logColorCommand, logError } from '../helpers/log';
 
 export interface ServerConfiguration {
     provider: string;
@@ -199,6 +199,8 @@ export class Server {
                 console.log(stdOut.toString());
                 console.log('<<');
             }
+            this._ipAddress = '';
+            this.save();
             return true;
         } catch (e) {
             console.error(e.stderr.toString());
