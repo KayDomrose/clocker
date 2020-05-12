@@ -61,6 +61,10 @@ const start = async (args: minimist.ParsedArgs) => {
     logSuccess('Ready');
 
     console.log('\n');
+    console.log('Checking ssh fingerprint...');
+    server.checkSSH();
+
+    console.log('\n');
     logSuccess(`Server ${logColorServer(serverId)} successfully started`);
     console.log(`Server ip is ${logColorServer(server.getIpAddress()!)}.`);
     logError('You will now be charged by your server provider while this server is running.');
