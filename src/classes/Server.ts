@@ -1,14 +1,13 @@
-import { SERVER_USER, SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
+import { SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
 import { Provider } from '../providers/Provider';
 import * as fs from 'fs';
 import { getProvider } from '../provider';
 import { readJson, writeJson } from '../helpers/file';
 import { RequestConfig } from '../actions/add';
-// @ts-ignore
-import spawn from 'await-spawn';
 import { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
-import { logColorCommand, logError } from '../helpers/log';
+import { logError } from '../helpers/log';
+import run from '../helpers/command';
 
 export interface ServerDeployment {
     composePath: string;
@@ -116,48 +115,18 @@ export class Server {
     }
 
     public async initializeTerraform(): Promise<boolean> {
-        const command = 'terraform';
-        const args = ['init'];
-        if (global.verbose) {
-            console.log(`>> Running ${logColorCommand(`${command} ${args.join(' ')}`)}`);
-        }
-
-        try {
-            const stdOur: Buffer = await spawn(command, args, {
-                cwd: this._path,
-                shell: true,
-            });
-            if (global.verbose) {
-                console.log('>>');
-                console.log(stdOur.toString());
-                console.log('<<');
-            }
-            return true;
-        } catch (e) {
-            console.error(e.stdout.toString());
-            return false;
-        }
+        const result = await run('terraform', ['init']);
+        return result !== null;
     }
 
     public async start(): Promise<boolean> {
-        const startCommand = 'terraform';
-        const startArgs = ['apply', '--auto-approve', '--input=false', this._path];
-        if (global.verbose) {
-            console.log(`>> Running ${logColorCommand(`${startCommand} ${startArgs.join(' ')}`)}`);
-        }
-
-        try {
-            const stdOut: Buffer = await spawn(startCommand, startArgs, {
-                cwd: this._path,
-                shell: true,
-            });
-            if (global.verbose) {
-                console.log('>>');
-                console.log(stdOut.toString());
-                console.log('<<');
-            }
-        } catch (e) {
-            console.error(e.stderr.toString());
+        const terraformResult = await run('terraform', [
+            'apply',
+            '--auto-approve',
+            '--input=false',
+            this._path,
+        ]);
+        if (terraformResult === null) {
             return false;
         }
 
@@ -166,21 +135,21 @@ export class Server {
             console.log('>> Fetching IP');
         }
 
-        try {
-            const stdOut: Buffer = await spawn('terraform', ['output', 'ip_address'], {
-                cwd: this._path,
-            });
-            this._ipAddress = stdOut.toString().replace('\n', '');
-            if (global.verbose) {
-                console.log(`>> Saving IP ${this._ipAddress}`);
-            }
-            this.save();
+        const ipOutput = await run('terraform', ['output', 'ip_address'], {
+            cwd: this._path,
+        });
 
-            return true;
-        } catch (e) {
-            console.error(e.stderr.toString());
+        if (ipOutput === null) {
+            logError(`Can't get ip address from terraform`);
             return false;
         }
+
+        this._ipAddress = ipOutput.replace('\n', '');
+        if (global.verbose) {
+            console.log(`>> Saving IP ${this._ipAddress}`);
+        }
+        this.save();
+        return true;
     }
 
     public async isReady(): Promise<boolean> {
@@ -214,27 +183,18 @@ export class Server {
     }
 
     public async stop(): Promise<boolean> {
-        const command = 'terraform';
-        const args = ['destroy', '--auto-approve'];
-        if (global.verbose) {
-            console.log(`>> Running ${logColorCommand(`${command} ${args.join(' ')}`)}`);
-        }
-        try {
-            const stdOut: Buffer = await spawn(command, args, {
-                cwd: this._path,
-            });
-            if (global.verbose) {
-                console.log('>>');
-                console.log(stdOut.toString());
-                console.log('<<');
-            }
-            this._ipAddress = '';
-            this.save();
-            return true;
-        } catch (e) {
-            console.error(e.stderr.toString());
+        const output = await run('terraform', ['destroy', '--auto-approve'], {
+            cwd: this._path,
+        });
+
+        if (output === null) {
+            logError('Error while destroying server');
             return false;
         }
+
+        this._ipAddress = '';
+        this.save();
+        return true;
     }
 
     public loadProviderConfig() {
