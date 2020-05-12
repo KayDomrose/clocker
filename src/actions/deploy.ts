@@ -29,7 +29,7 @@ const validateDockerComposeFile = async (path: string): Promise<boolean> => {
 
 const checkSSH = (ip: string): boolean => {
     const knownHostsFile = `${process.env.HOME}/.ssh/known_hosts`;
-    if (VERBOSE) {
+    if (global.verbose) {
         console.log(`>> Locking for known_hosts at ${knownHostsFile}.`);
     }
     if (!fs.existsSync(knownHostsFile)) {
@@ -38,7 +38,7 @@ const checkSSH = (ip: string): boolean => {
     }
 
     const knownHostContent: Buffer = fs.readFileSync(knownHostsFile);
-    if (VERBOSE) {
+    if (global.verbose) {
         console.log(`>> Checking if ip ${ip} exists in known_hosts.`);
     }
     if (!knownHostContent.toString().includes(ip)) {
