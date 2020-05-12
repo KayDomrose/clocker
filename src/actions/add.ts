@@ -1,7 +1,7 @@
 import { checkInitOrFail } from '../helpers/check-init';
 import { Choice, PromptObject } from 'prompts';
 import { getProvider, providers } from '../provider';
-import { Provider } from '../providers/Provider';
+import { Provider } from '../classes/Provider';
 import prompts = require('prompts');
 import { logColorCommand, logColorServer, logSuccess } from '../helpers/log';
 import { Server } from '../classes/Server';

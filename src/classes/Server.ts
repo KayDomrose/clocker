@@ -1,5 +1,5 @@
 import { SERVER_USER, SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
-import { Provider } from '../providers/Provider';
+import { Provider } from './Provider';
 import * as fs from 'fs';
 import { getProvider } from '../provider';
 import { readJson, writeJson } from '../helpers/file';

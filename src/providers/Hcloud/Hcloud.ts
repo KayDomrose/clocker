@@ -1,4 +1,4 @@
-import { Provider, ProviderConfig } from '../Provider';
+import { Provider, ProviderConfig } from '../../classes/Provider';
 import { PromptObject } from 'prompts';
 import * as fs from 'fs';
 
