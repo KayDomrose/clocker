@@ -17,7 +17,7 @@ const list = async () => {
     }
 
     const table = new Table({
-        head: ['ID', 'State', 'Provider', 'IP Address', 'Deployments', 'Deployed at'],
+        head: ['ID', 'State', 'Provider', 'IP Address', 'Server', 'Deployments', 'Deployed at'],
         style: {
             head: ['grey'],
         },
@@ -32,8 +32,9 @@ const list = async () => {
         table.push([
             logColorServer(server.getId()),
             ready ? logColorSuccess('online') : logColorError('offline'),
-            server.provider().key(),
+            server.provider().name(),
             server.getIpAddress() || '-',
+            server.provider().getServerInfo(),
             deployments.length === 0 ? '-' : deployments.map((d) => d.composePath).join('\n'),
             deployments.length === 0
                 ? '-'
