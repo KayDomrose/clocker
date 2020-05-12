@@ -13,9 +13,9 @@ const run = async (
     try {
         const stdOut: Buffer = await spawn(command, args, options);
         if (global.verbose) {
-            console.log('>>');
+            console.log('OUTPUT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
             console.log(stdOut.toString());
-            console.log('<<');
+            console.log('OUTPUT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
         }
         return stdOut.toString();
     } catch (e) {

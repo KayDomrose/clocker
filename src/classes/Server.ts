@@ -1,4 +1,4 @@
-import { SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
+import { SERVER_USER, SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
 import { Provider } from '../providers/Provider';
 import * as fs from 'fs';
 import { getProvider } from '../provider';
@@ -6,7 +6,7 @@ import { readJson, writeJson } from '../helpers/file';
 import { RequestConfig } from '../actions/add';
 import { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
-import { logError } from '../helpers/log';
+import { logColorCommand, logError } from '../helpers/log';
 import run from '../helpers/command';
 
 export interface ServerDeployment {
@@ -120,12 +120,14 @@ export class Server {
     }
 
     public async start(): Promise<boolean> {
-        const terraformResult = await run('terraform', [
-            'apply',
-            '--auto-approve',
-            '--input=false',
-            this._path,
-        ]);
+        const terraformResult = await run(
+            'terraform',
+            ['apply', '--auto-approve', '--input=false', this._path],
+            {
+                cwd: this._path,
+                shell: true,
+            }
+        );
         if (terraformResult === null) {
             return false;
         }
@@ -193,6 +195,7 @@ export class Server {
         }
 
         this._ipAddress = '';
+        this._deployments = [];
         this.save();
         return true;
     }
@@ -213,38 +216,6 @@ export class Server {
         });
         const config = this._provider?.mapTerraformVarsToConfig(vars);
         this._provider?.setConfig(config);
-    }
-
-    public checkSSH(): boolean {
-        if (!this._ipAddress) {
-            logError(`No IP address for ${this._id}`);
-            return false;
-        }
-
-        const knownHostsFile = `${process.env.HOME}/.ssh/known_hosts`;
-        if (global.verbose) {
-            console.log(`>> Locking for known_hosts at ${knownHostsFile}.`);
-        }
-        if (!fs.existsSync(knownHostsFile)) {
-            logError(`known_hosts file missing at ${knownHostsFile}.`);
-            return false;
-        }
-
-        const knownHostContent: Buffer = fs.readFileSync(knownHostsFile);
-        if (global.verbose) {
-            console.log(`>> Checking if ip ${this._ipAddress} exists in known_hosts.`);
-        }
-        if (!knownHostContent.toString().includes(this._ipAddress!)) {
-            logError(`Fingerprint for ${this._ipAddress} not found in ${knownHostsFile}`);
-            console.log(
-                `Please run ${logColorCommand(
-                    `ssh ${SERVER_USER}@${this._ipAddress} exit`
-                )} and confirm.`
-            );
-            return false;
-        }
-
-        return true;
     }
 
     public static buildFromId(id: string): Server {

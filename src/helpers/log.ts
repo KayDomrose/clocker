@@ -9,3 +9,4 @@ export const logColorHint = (message: string): string => chalk.grey(message);
 export const logSuccess = (message: string) => console.log(logColorSuccess(message));
 export const logError = (message: string) => console.log(logColorError(message));
 export const logHint = (message: string) => console.log(logColorHint(message));
+export const logCommand = (message: string) => console.log(logColorCommand(message));

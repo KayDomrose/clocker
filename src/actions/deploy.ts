@@ -88,14 +88,6 @@ const deploy = async (args: minimist.ParsedArgs) => {
     }
 
     console.log('\n');
-    console.log('Checking ssh connection ...');
-    if (!server.checkSSH()) {
-        return;
-    } else {
-        logSuccess('OK');
-    }
-
-    console.log('\n');
     console.log('Deploying ...');
     if (!(await deployFile(dockerComposeFile, server))) {
         return;

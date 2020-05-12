@@ -1,8 +1,16 @@
 import minimist from 'minimist';
-import { logColorCommand, logColorServer, logError, logHint, logSuccess } from '../helpers/log';
-import { TEST_INTERVAL_SECONDS, TEST_INTERVAL_TRIES } from '../variables';
+import {
+    logColorCommand,
+    logColorServer,
+    logCommand,
+    logError,
+    logHint,
+    logSuccess,
+} from '../helpers/log';
+import { SERVER_USER, TEST_INTERVAL_SECONDS, TEST_INTERVAL_TRIES } from '../variables';
 import { checkInitOrFail } from '../helpers/check-init';
 import { Server } from '../classes/Server';
+import { addFingerprintToKnownHosts } from '../helpers/fingerprint';
 
 const waitForServer = async (server: Server) => {
     let times = 0;
@@ -61,8 +69,14 @@ const start = async (args: minimist.ParsedArgs) => {
     logSuccess('Ready');
 
     console.log('\n');
-    console.log('Checking ssh fingerprint...');
-    server.checkSSH();
+    console.log('Updating ssh fingerprint ...');
+    if (!(await addFingerprintToKnownHosts(server.getIpAddress()))) {
+        logError('Error while adding finterprints');
+        console.log('Please handle ssh fingerprints yourself by running');
+        logCommand(`ssh ${SERVER_USER}@${server.getIpAddress()} exit`);
+        return;
+    }
+    logSuccess('Fingerprints updated');
 
     console.log('\n');
     logSuccess(`Server ${logColorServer(serverId)} successfully started`);
