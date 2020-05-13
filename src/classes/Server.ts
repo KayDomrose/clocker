@@ -8,6 +8,7 @@ import { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
 import { logError } from '../helpers/log';
 import run from '../helpers/command';
+import rimraf from 'rimraf';
 
 export interface ServerDeployment {
     composePath: string;
@@ -199,6 +200,12 @@ export class Server {
         this._ipAddress = '';
         this._deployments = [];
         this.save();
+        return true;
+    }
+
+    public remove(): boolean {
+        rimraf.sync(this._path);
+
         return true;
     }
 

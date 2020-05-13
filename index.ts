@@ -9,6 +9,7 @@ import list from './src/actions/list';
 import start from './src/actions/start';
 import stop from './src/actions/stop';
 import deploy from './src/actions/deploy';
+import remove from './src/actions/remove';
 
 interface Action {
     name: string;
@@ -38,6 +39,11 @@ const actions: Action[] = [
         name: 'stop',
         args: ['ID'],
         action: stop,
+    },
+    {
+        name: 'remove',
+        args: ['ID'],
+        action: remove,
     },
     {
         name: 'deploy',
@@ -82,6 +88,7 @@ Actions
     ${logColorCommand('add')}                               Configure a new remote cloud server
     ${logColorCommand('start ID')}                          Start a server
     ${logColorCommand('stop ID')}                           Stop a server
+    ${logColorCommand('remove ID')}                         Remove a server completely
     ${logColorCommand('deploy ID DOCKER-COMPOSE-FILE')}     Deploy a docker-compose file to a server
     
 Options
