@@ -115,7 +115,9 @@ export class Server {
     }
 
     public async initializeTerraform(): Promise<boolean> {
-        const result = await run('terraform', ['init']);
+        const result = await run('terraform', ['init'], {
+            cwd: this._path,
+        });
         return result !== null;
     }
 
