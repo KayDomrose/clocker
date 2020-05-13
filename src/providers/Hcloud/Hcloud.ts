@@ -1,6 +1,7 @@
 import { BaseProvider, ProviderConfig } from '../../classes/BaseProvider';
 import { PromptObject } from 'prompts';
 import * as fs from 'fs';
+import { allServers } from '../../helpers/servers';
 
 export interface HcloudConfig extends ProviderConfig {
     hcloudServerName: string;
@@ -20,18 +21,25 @@ class Hcloud extends BaseProvider {
     }
 
     getServerInfo(): string {
-        const config: HcloudConfig = this._config;
+        const config: HcloudConfig = this._config as HcloudConfig;
         return `${config.hcloudServerName} (${config.hcloudServerType})`;
     }
 
     getAdditionalInitQuestions(): PromptObject[] {
+        const servers = allServers();
         return [
             {
                 type: 'text',
                 name: 'hcloudSSHPath',
                 message: 'Path to your ssh public key',
                 initial: `${process.env.HOME}/.ssh/id_rsa.pub`,
-                validate: (path) => fs.existsSync(path),
+                validate: (path) => {
+                    if (fs.existsSync(path)) {
+                        return `File not found.`;
+                    }
+
+                    return true;
+                },
             },
             {
                 type: 'text',

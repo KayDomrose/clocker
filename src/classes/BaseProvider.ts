@@ -13,10 +13,14 @@ export abstract class BaseProvider {
     public abstract mapTerraformVarsToConfig(config: ProviderConfig): any;
     public abstract mapConfigToTerraformVars(config: any): any;
 
-    protected _config: any = {};
+    protected _config: ProviderConfig = {};
 
-    setConfig(value: any) {
+    setConfig(value: ProviderConfig) {
         this._config = value;
+    }
+
+    public getConfig<T extends ProviderConfig>(): T {
+        return this._config as T;
     }
 
     public copyTerraformTemplate(path: string): string {
