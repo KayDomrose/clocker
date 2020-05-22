@@ -1,10 +1,12 @@
 # Clocker - CLoud doCKER
 Create and provision cloud server with just a few commands, ready to be deployed with your docker-compose project.
 
-## ❗️❗️ Do not use in production ❗️❗️
+## ❗Do not use in production❗️
 This project is in a very early stage and just a proof of concept for now.
 
-Use only for development or testing, as there shall be bugs or design flaws that could destroy your project.
+It sure has many bugs and design flaws that will destroy your deployed project without backup or recovery.
+
+Only the minimal happy path is working for now.
 
 ## TOC
 1. [Overview](#Overview)
