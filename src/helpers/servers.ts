@@ -13,7 +13,9 @@ export const allServers = (): Server[] => {
         try {
             return Server.buildFromId(id);
         } catch (e) {
-            logError(`Cannot find server configuration for "${id}"`);
+            if (global.verbose) {
+                logError(`Cannot find server configuration for "${id}"`);
+            }
             return null;
         }
     });

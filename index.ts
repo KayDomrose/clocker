@@ -10,6 +10,7 @@ import start from './src/actions/start';
 import stop from './src/actions/stop';
 import deploy from './src/actions/deploy';
 import remove from './src/actions/remove';
+import Exception from './src/exceptions/Exception';
 
 interface Action {
     name: string;
@@ -68,7 +69,7 @@ const checkArgs = (args: minimist.ParsedArgs, action: Action): boolean => {
     return true;
 };
 
-const run = (args: minimist.ParsedArgs) => {
+const run = async (args: minimist.ParsedArgs) => {
     global.verbose = args?.verbose || args?.v;
 
     if (args?.version) {
@@ -103,8 +104,19 @@ Options
     }
 
     const action: Action = actions.find((a) => a.name === args._[0])!;
-    if (checkArgs(args, action)) {
-        action.action(args);
+    if (!checkArgs(args, action)) {
+        return;
+    }
+
+    try {
+        await action.action(args);
+    } catch (e) {
+        if (e instanceof Exception) {
+            console.log('\n');
+            logError(e.message);
+            return;
+        }
+        logError(e);
     }
 };
 

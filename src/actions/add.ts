@@ -1,10 +1,12 @@
 import { checkInitOrFail } from '../helpers/check-init';
-import { Choice, PromptObject } from 'prompts';
+import { Choice, Options, PromptObject } from 'prompts';
 import { getProvider, providers } from '../provider';
 import prompts = require('prompts');
-import { logColorCommand, logColorServer, logSuccess } from '../helpers/log';
+import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
 import { Server } from '../classes/Server';
 import { allServers } from '../helpers/servers';
+import ask from '../helpers/ask';
+import { ProviderConfig } from '../classes/BaseProvider';
 
 export interface RequestConfig {
     id: string;
@@ -46,7 +48,7 @@ const requestConfig = async (): Promise<RequestConfig> => {
         },
     ];
 
-    return (await prompts(questions)) as RequestConfig;
+    return await ask<RequestConfig>(questions);
 };
 
 const add = async () => {
@@ -61,7 +63,8 @@ const add = async () => {
     const server = Server.buildFromProviderConfig(config);
 
     const providerQuestions: PromptObject[] = server.provider().getAdditionalInitQuestions();
-    const providerAnswers = await prompts(providerQuestions);
+    const providerAnswers = await ask<ProviderConfig>(providerQuestions);
+
     server.provider().setConfig(providerAnswers);
 
     if (server.save()) {
