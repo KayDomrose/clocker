@@ -46,10 +46,6 @@ export class Server {
 
     private setServerPath() {
         this._path = `${SERVERS_PATH}/${this._id}`;
-
-        if (!fs.existsSync(this._path)) {
-            fs.mkdirSync(this._path);
-        }
     }
 
     public getServerPath(): string {
@@ -90,6 +86,10 @@ export class Server {
     }
 
     public save(): ServerSavePaths {
+        if (!fs.existsSync(this._path)) {
+            fs.mkdirSync(this._path);
+        }
+
         const config: ServerConfiguration = {
             provider: this._provider?.key() || '',
             ip: this._ipAddress || '',
