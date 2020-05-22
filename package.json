@@ -1,6 +1,6 @@
 {
   "name": "@kay.domrose/clocker",
-  "version": "0.1.1",
+  "version": "0.1.2-0",
   "description": "Configure and provision cloud servers, ready to deploy your docker-compose project.",
   "author": {
     "name": "Kay Domrose",
