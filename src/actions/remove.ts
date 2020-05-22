@@ -27,7 +27,7 @@ const remove = async (args: minimist.ParsedArgs) => {
 
     const config: PromptObject = {
         type: 'confirm',
-        message: `Do you really want to completely an irreversible remove server ${logColorServer(
+        message: `Do you really want to completely and irreversible remove server ${logColorServer(
             server.getId()
         )}?`,
         name: 'confirm',
