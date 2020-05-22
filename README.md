@@ -14,6 +14,7 @@ Use only for development or testing, as there shall be bugs or design flaws that
 5. [Limitations & Known Problems](#Limitations-&-Known-Problems)
 6. [Development](#Development)
 7. [Intention & Goals](#Intention-&-Goals)
+8. [License](#License)
 
 ## Overview
 See below for more details on how to [install](#Installation) and [use](#Usage) clocker.
@@ -169,3 +170,7 @@ By automatising the server provisioning with a default docker environment, this 
 It is by no means a professional tool to run your production application on.
 
 There is no magic going on. Under the hood, clocker uses terraform and docker-cli to create, provision and deploy. 
+
+
+## License
+clocker is [MIT licensed](https://github.com/KayDomrose/clocker/blob/master/LICENSE.md).
