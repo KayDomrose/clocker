@@ -26,7 +26,6 @@ class Hcloud extends BaseProvider {
     }
 
     getAdditionalInitQuestions(): PromptObject[] {
-        const servers = allServers();
         return [
             {
                 type: 'text',
