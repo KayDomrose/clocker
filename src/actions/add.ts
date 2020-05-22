@@ -19,6 +19,10 @@ const requestConfig = async (): Promise<RequestConfig> => {
             message: 'Unique id',
             initial: '',
             validate: (value) => {
+                if (value.length === 0) {
+                    return 'ID can not be empty';
+                }
+
                 if (
                     allServers()
                         .map((s) => s.getId())

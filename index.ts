@@ -13,6 +13,7 @@ import remove from './src/actions/remove';
 import Exception from './src/exceptions/Exception';
 import checkInit from './src/helpers/check-init';
 import IncompleteInitializationException from './src/exceptions/IncompleteInitializationException';
+import eject from './src/actions/eject';
 
 interface Action {
     name: string;
@@ -53,6 +54,11 @@ const actions: Action[] = [
         args: ['ID', 'DOCKER-COMPOSE-FILE'],
         action: deploy,
     },
+    {
+        name: 'eject',
+        args: ['ID', 'TARGET-PATH'],
+        action: eject,
+    },
 ];
 
 const checkArgs = (args: minimist.ParsedArgs, action: Action): boolean => {
@@ -91,8 +97,9 @@ Arguments
     ${logColorCommand('add')}                               Configure a new remote cloud server
     ${logColorCommand('start ID')}                          Start a server
     ${logColorCommand('stop ID')}                           Stop a server
-    ${logColorCommand('remove ID')}                         Remove a server completely
+    ${logColorCommand('eject ID TARGET-PATH')}              Move all server configuration to target
     ${logColorCommand('deploy ID DOCKER-COMPOSE-FILE')}     Deploy a docker-compose file to a server
+    ${logColorCommand('remove ID')}                         Remove a server completely
     
 Flags
     ${logColorCommand('--version')}                         Show clocker version
