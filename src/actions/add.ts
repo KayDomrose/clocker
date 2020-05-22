@@ -17,7 +17,7 @@ const requestConfig = async (): Promise<RequestConfig> => {
             type: 'text',
             name: 'id',
             message: 'Unique id',
-            initial: `test-server`,
+            initial: '',
             validate: (value) => {
                 if (
                     allServers()
