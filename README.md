@@ -45,10 +45,10 @@ clocker list
 ![Clocker start step](./docs/assets/readme-list.png)
 
 ## Supported providers
+- [DigialOcean](https://www.digitalocean.com/)
 - [Hetzner Cloud](https://www.hetzner.com/cloud)
 
 ### Planed 
-- DigialOcean [#5](https://github.com/KayDomrose/clocker/issues/5)
 - AWS [#2](https://github.com/KayDomrose/clocker/issues/2)
 
 ## Installation
