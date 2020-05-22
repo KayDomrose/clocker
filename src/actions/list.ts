@@ -47,6 +47,11 @@ const list = async () => {
         `Run ${logColorCommand(`clocker start ${logColorServer('ID')}`)} to start a server.`
     );
     console.log(`Run ${logColorCommand(`clocker stop ${logColorServer('ID')}`)} to stop a server.`);
+    console.log(
+        `Run ${logColorCommand(
+            `clocker remove ${logColorServer('ID')}`
+        )} to delete a server completely.`
+    );
 };
 
 export default list;
