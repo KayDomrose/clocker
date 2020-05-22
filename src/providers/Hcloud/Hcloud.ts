@@ -2,6 +2,8 @@ import { BaseProvider, ProviderConfig } from '../../classes/BaseProvider';
 import { PromptObject } from 'prompts';
 import * as fs from 'fs';
 import { allServers } from '../../helpers/servers';
+import { Server } from '../../classes/Server';
+import { logColorServer, logError } from '../../helpers/log';
 
 export interface HcloudConfig extends ProviderConfig {
     hcloudServerName: string;
@@ -25,7 +27,18 @@ class Hcloud extends BaseProvider {
         return `${config.hcloudServerName} (${config.hcloudServerType})`;
     }
 
+    private getOtherServersWithSSHPath(servers: Server[], path: string): Server | undefined {
+        return servers.find((s: Server) => {
+            if (!(s.provider() instanceof Hcloud)) {
+                return false;
+            }
+            const config: HcloudConfig = s.provider().getConfig();
+            return config.hcloudSSHPath === path;
+        });
+    }
+
     getAdditionalInitQuestions(): PromptObject[] {
+        const servers = allServers();
         return [
             {
                 type: 'text',
@@ -35,6 +48,21 @@ class Hcloud extends BaseProvider {
                 validate: (path) => {
                     if (!fs.existsSync(path)) {
                         return `File not found.`;
+                    }
+
+                    const server = this.getOtherServersWithSSHPath(servers, path);
+                    if (server !== undefined) {
+                        console.log('\n');
+                        logError('ATTENTION');
+                        console.log(
+                            `There already is a server for ${this.name()} configured with the same ssh public key (${logColorServer(
+                                server.getId()
+                            )}).`
+                        );
+                        console.log(
+                            `Hetzner does not allow the same ssh key twice for the same project, so make sure to use another hetzner project (that means using a different Hetzner Cloud API-Token).`
+                        );
+                        console.log('\n');
                     }
 
                     return true;
@@ -69,7 +97,13 @@ class Hcloud extends BaseProvider {
                 name: '_hcloudToken',
                 message:
                     'Your Hetzner Cloud API-Token (https://docs.hetzner.cloud/#overview-getting-started)',
-                validate: (value) => value.length > 0,
+                validate: (value) => {
+                    if (value.length === 0) {
+                        return 'API-Token can not be empty';
+                    }
+
+                    return true;
+                },
             },
         ];
     }
