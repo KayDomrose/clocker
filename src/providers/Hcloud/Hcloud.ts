@@ -33,7 +33,7 @@ class Hcloud extends BaseProvider {
                 message: 'Path to your ssh public key',
                 initial: `${process.env.HOME}/.ssh/id_rsa.pub`,
                 validate: (path) => {
-                    if (fs.existsSync(path)) {
+                    if (!fs.existsSync(path)) {
                         return `File not found.`;
                     }
 
