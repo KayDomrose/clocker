@@ -1,14 +1,9 @@
 import minimist from 'minimist';
-import { checkInitOrFail } from '../helpers/check-init';
 import { logColorServer, logCommand, logError, logSuccess } from '../helpers/log';
 import { Server } from '../classes/Server';
 import { removeFingerprintFromKnownHosts } from '../helpers/fingerprint';
 
 const stop = async (args: minimist.ParsedArgs) => {
-    if (!checkInitOrFail()) {
-        return;
-    }
-
     const serverId: string = args._[1];
     let server: Server | null = null;
     try {

@@ -1,14 +1,9 @@
 import minimist from 'minimist';
-import { checkInitOrFail } from '../helpers/check-init';
 import { Server } from '../classes/Server';
 import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
 import prompts, { PromptObject } from 'prompts';
 
 const remove = async (args: minimist.ParsedArgs) => {
-    if (!checkInitOrFail()) {
-        return;
-    }
-
     const serverId: string = args._[1];
     let server: Server | null = null;
     try {

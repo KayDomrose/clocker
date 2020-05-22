@@ -1,7 +1,13 @@
 export default abstract class Exception {
-    public readonly message: string;
+    protected readonly _messageParts: string[];
 
-    constructor(message: string) {
-        this.message = message;
+    constructor(_messageParts: string[]) {
+        this._messageParts = _messageParts;
+    }
+
+    public printErrors(): void {
+        this._messageParts.forEach((error) => {
+            console.log(error);
+        });
     }
 }

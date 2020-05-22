@@ -2,12 +2,8 @@ import { allServers } from '../helpers/servers';
 import { logColorCommand, logColorError, logColorServer, logColorSuccess } from '../helpers/log';
 import Table from 'cli-table';
 import { Server } from '../classes/Server';
-import { checkInitOrFail } from '../helpers/check-init';
 
 const list = async () => {
-    if (!checkInitOrFail()) {
-        return;
-    }
     const servers = allServers();
 
     if (servers.length === 0) {

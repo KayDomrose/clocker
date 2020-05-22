@@ -3,7 +3,6 @@ import { logColorCommand, logColorServer, logError, logSuccess } from '../helper
 import * as fs from 'fs';
 import { SERVER_USER } from '../variables';
 import { Server } from '../classes/Server';
-import { checkInitOrFail } from '../helpers/check-init';
 import * as os from 'os';
 import path from 'path';
 import run from '../helpers/command';
@@ -43,10 +42,6 @@ const deployFile = async (filePath: string, server: Server) => {
 };
 
 const deploy = async (args: minimist.ParsedArgs) => {
-    if (!checkInitOrFail()) {
-        return;
-    }
-
     const serverId: string = args._[1];
     let server: Server | null = null;
     try {

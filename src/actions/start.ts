@@ -8,7 +8,6 @@ import {
     logSuccess,
 } from '../helpers/log';
 import { SERVER_USER, TEST_INTERVAL_SECONDS, TEST_INTERVAL_TRIES } from '../variables';
-import { checkInitOrFail } from '../helpers/check-init';
 import { Server } from '../classes/Server';
 import { addFingerprintToKnownHosts } from '../helpers/fingerprint';
 
@@ -27,10 +26,6 @@ const waitForServer = async (server: Server) => {
 };
 
 const start = async (args: minimist.ParsedArgs) => {
-    if (!checkInitOrFail()) {
-        return;
-    }
-
     const serverId: string = args._[1];
     let server: Server | null = null;
     try {

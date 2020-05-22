@@ -1,8 +1,6 @@
-import { checkInitOrFail } from '../helpers/check-init';
-import { Choice, Options, PromptObject } from 'prompts';
+import { Choice, PromptObject } from 'prompts';
 import { getProvider, providers } from '../provider';
-import prompts = require('prompts');
-import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
+import { logColorCommand, logColorServer, logSuccess } from '../helpers/log';
 import { Server } from '../classes/Server';
 import { allServers } from '../helpers/servers';
 import ask from '../helpers/ask';
@@ -52,9 +50,6 @@ const requestConfig = async (): Promise<RequestConfig> => {
 };
 
 const add = async () => {
-    if (!checkInitOrFail()) {
-        return;
-    }
     console.log('Answer these questions to configure a new server.');
     console.log('No server will be created yet.');
 

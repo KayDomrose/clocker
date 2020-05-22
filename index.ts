@@ -11,6 +11,8 @@ import stop from './src/actions/stop';
 import deploy from './src/actions/deploy';
 import remove from './src/actions/remove';
 import Exception from './src/exceptions/Exception';
+import checkInit from './src/helpers/check-init';
+import IncompleteInitializationException from './src/exceptions/IncompleteInitializationException';
 
 interface Action {
     name: string;
@@ -104,6 +106,20 @@ Options
     }
 
     const action: Action = actions.find((a) => a.name === args._[0])!;
+
+    try {
+        if (action.name !== 'init' && !checkInit()) {
+            throw new IncompleteInitializationException();
+        }
+    } catch (e) {
+        if (e instanceof Exception) {
+            console.log('\n');
+            e.printErrors();
+            return;
+        }
+        logError(e);
+    }
+
     if (!checkArgs(args, action)) {
         return;
     }
@@ -113,7 +129,7 @@ Options
     } catch (e) {
         if (e instanceof Exception) {
             console.log('\n');
-            logError(e.message);
+            e.printErrors();
             return;
         }
         logError(e);
