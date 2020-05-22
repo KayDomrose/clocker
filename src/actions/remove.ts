@@ -1,7 +1,8 @@
 import minimist from 'minimist';
 import { Server } from '../classes/Server';
 import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
-import prompts, { PromptObject } from 'prompts';
+import { PromptObject } from 'prompts';
+import ask from '../helpers/ask';
 
 const remove = async (args: minimist.ParsedArgs) => {
     const serverId: string = args._[1];
@@ -32,12 +33,7 @@ const remove = async (args: minimist.ParsedArgs) => {
         name: 'confirm',
     };
 
-    const answer = await prompts(config);
-
-    if (!answer.confirm) {
-        console.log('Server not removed.');
-        return;
-    }
+    await ask(config);
 
     console.log('\n');
     console.log(`Removing ${logColorServer(serverId)} ...`);
