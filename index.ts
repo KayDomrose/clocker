@@ -83,9 +83,9 @@ const run = async (args: minimist.ParsedArgs) => {
         console.log(`${logColorSuccess('clocker - CLoud doCKER')} 
 v${VERSION}
 
-Usage ${logColorCommand('clocker ACTION OPTION')}
+Usage ${logColorCommand('clocker ARGS FLAGS')}
 
-Actions
+Arguments
     ${logColorCommand('init')}                              Initialize clocker
     ${logColorCommand('list')}                              List all servers with state
     ${logColorCommand('add')}                               Configure a new remote cloud server
@@ -94,9 +94,12 @@ Actions
     ${logColorCommand('remove ID')}                         Remove a server completely
     ${logColorCommand('deploy ID DOCKER-COMPOSE-FILE')}     Deploy a docker-compose file to a server
     
-Options
+Flags
     ${logColorCommand('--version')}                         Show clocker version
     ${logColorCommand('--help')}                            Show this documentation
+
+Verbose mode
+    Add ${logColorCommand('--verbose')} to any command to see in detail what clocker is doing.
 `);
         return;
     }

@@ -9,7 +9,7 @@ import run from '../helpers/command';
 
 const validateDockerComposeFile = async (path: string): Promise<boolean> => {
     const output = await run('docker-compose', ['--file', path, 'config']);
-    return output === null;
+    return output !== null;
 };
 
 const getAbsolutePath = (filepath: string, delim = '/'): string => {

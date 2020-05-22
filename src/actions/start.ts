@@ -14,7 +14,7 @@ import { addFingerprintToKnownHosts } from '../helpers/fingerprint';
 const waitForServer = async (server: Server) => {
     let times = 0;
     while (times < TEST_INTERVAL_TRIES) {
-        console.log(`Waiting  ... ${(times + 1) * TEST_INTERVAL_SECONDS}s`);
+        console.log(`Waiting ... ${(times + 1) * TEST_INTERVAL_SECONDS}s`);
         if (await server.isReady()) {
             return true;
         }
