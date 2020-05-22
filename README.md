@@ -82,13 +82,17 @@ Linux may also be supported, as clocker only uses terraform, docker and some bas
 
 ### Prerequisites 
 These tools need to be installed and executable in your cli:
+- [Node & NPM](https://nodejs.org/en/)  
+`npm -v`
 - [Terraform](https://learn.hashicorp.com/terraform/getting-started/install)   
 `terraform -v`
 - [Docker](https://docs.docker.com/desktop/)  
 `docker -v`
 
 ### Install clocker
-// TODO once released on npm
+```shell script
+npm install -g @kay.domrose/clocker
+```
 
 ## Usage
 clocker is designed to run from anywhere in your cli, so you don't need a special folder or something.
