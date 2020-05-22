@@ -149,7 +149,7 @@ There is nothing hidden elsewhere.
 The main idea of clocker is to give you a good kickstart for new projects, you want to deploy, but also give you anything you need to customize the basic setup.
 
 ## Limitations & Known Problems
-1. There is no persistent storage (yet) to store files created or used in your docker-compose.
+1. There is no persistent storage (yet) to store files created or used in your docker-compose. [#8](https://github.com/KayDomrose/clocker/issues/8)
 2. Multiple compose files deployed to the same server may use same ports.
 
 ## Development
