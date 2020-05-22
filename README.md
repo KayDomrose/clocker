@@ -1,5 +1,26 @@
 # Clocker - CLoud doCKER
-Create and provision cloud server with just a few commands, ready to be deployed with your docker-compose project.
+clocker is a command line tool, that help you to set up remote server and deploy your docker-compose file with just a few commands.
+
+```shell script
+clocker add
+// Configure your server <my-server>
+
+clocker start <my-server>
+// Create a new server based on configuration and provision it, ready for docker 
+
+clocker deploy <my-server> ./docker-compose.yml
+// Deploy your project to the server. Exposed ports are reachable via server ip 
+```
+
+You can set up a new server in minutes, without any manual server configuration, destroy and re-create it anytime you need.
+
+It's ideal for you if you ...  
+... need a small service online every now and then without setting up a server every time or paying for a server you don't use or that is not running.  
+... want a place to quickly showcase a project in a more realistic environment.  
+... have a small budget or no experience in server administration but want your work online.
+
+clocker exposes all the magic it does in terraform templates and docker commands.  
+When you want to get more professional, you can use this as a starting point for a more advanced provisioning.
 
 ## ❗Do not use in production❗️
 This project is in a very early stage and just a proof of concept for now.
