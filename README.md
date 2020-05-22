@@ -169,11 +169,19 @@ If you want to completely remove a server in clocker, run:
 clocker remove <my-server-id>
 ```
 
-### Customize
+### Customize / Eject
 clocker saves all configuration it needs to work with your server in a single directory at `.clocker/servers/<your-server-ip>`, including the terraform state.  
-There is nothing hidden elsewhere. 
+There is nothing hidden elsewhere, so feel free to explore.
 
 The main idea of clocker is to give you a good kickstart for new projects, you want to deploy, but also give you anything you need to customize the basic setup.
+
+If you want to modify or extend your server configuration, run
+```shell script
+clocker eject <my-server-id> <target-path>
+```
+clocker will move all necessary files to your target directory, including terraform template, variables and state. Now you can change these configurations and clocker will not overwrite them.  
+You can't manage this server via clocker anymore, but can run the terraform commands yourself.
+ 
 
 ## Limitations & Known Problems
 1. There is no persistent storage (yet) to store files created or used in your docker-compose. [#8](https://github.com/KayDomrose/clocker/issues/8)
