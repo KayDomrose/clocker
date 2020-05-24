@@ -78,7 +78,7 @@ class Hcloud extends BaseProvider {
                 type: 'text',
                 name: 'hcloudServerName',
                 message: 'Label for the server (to identify in Hetzner backend)',
-                initial: 'Test-Server',
+                initial: '',
                 validate: (value) => !value.includes(' '),
             },
             {
