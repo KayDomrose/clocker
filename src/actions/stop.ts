@@ -13,12 +13,21 @@ const stop = async (args: minimist.ParsedArgs) => {
         return;
     }
 
+    console.log(`Stopping ${logColorServer(serverId)} ...`);
+
     if (!(await server.isReady())) {
         logSuccess('Server already stopped');
         return;
     }
 
-    console.log(`Stopping ${logColorServer(serverId)} ...`);
+    console.log('\n');
+    console.log('Saving data from server ...');
+    if (!(await server.copyDataFromRemote())) {
+    }
+    logSuccess(`Data saved locally to ${server.getDataPath()}`);
+
+    console.log('\n');
+    console.log('Stopping ...');
     const serverIp = server.getIpAddress();
     if (!(await server.stop())) {
         logError('Failed to stop');

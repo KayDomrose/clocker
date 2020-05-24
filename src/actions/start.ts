@@ -10,6 +10,7 @@ import {
 import { SERVER_USER, TEST_INTERVAL_SECONDS, TEST_INTERVAL_TRIES } from '../variables';
 import { Server } from '../classes/Server';
 import { addFingerprintToKnownHosts } from '../helpers/fingerprint';
+import run from '../helpers/command';
 
 const waitForServer = async (server: Server) => {
     let times = 0;
@@ -72,6 +73,12 @@ const start = async (args: minimist.ParsedArgs) => {
         return;
     }
     logSuccess('Fingerprints updated');
+
+    console.log('\n');
+    console.log('Copy data to remote server ...');
+    if (!(await server.copyDataToRemote())) {
+    }
+    logSuccess(`Data copied to ${server.getRemoteDataPath()} on ${server.getIpAddress()}`);
 
     console.log('\n');
     logSuccess(`Server ${logColorServer(serverId)} successfully started`);
