@@ -1,4 +1,4 @@
-import { SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
+import { SERVER_USER, SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
 import { BaseProvider } from './BaseProvider';
 import * as fs from 'fs';
 import { getProvider } from '../provider';
@@ -6,7 +6,7 @@ import { readJson, writeJson } from '../helpers/file';
 import { RequestConfig } from '../actions/add';
 import { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
-import { logError } from '../helpers/log';
+import { logError, logHint, logSuccess } from '../helpers/log';
 import run from '../helpers/command';
 import rimraf from 'rimraf';
 
@@ -38,6 +38,14 @@ export class Server {
         this._id = id;
 
         this.setServerPath();
+    }
+
+    public getDataPath(): string {
+        return `${this._path}/clocker-data`;
+    }
+
+    public getRemoteDataPath(): string {
+        return '~/clocker-data';
     }
 
     public getId(): string {
@@ -86,8 +94,20 @@ export class Server {
     }
 
     public save(): ServerSavePaths {
+        if (global.verbose) {
+            console.log('>> Checking server directory ...');
+        }
         if (!fs.existsSync(this._path)) {
             fs.mkdirSync(this._path);
+            logSuccess(`Server directory created at ${this._path}`);
+        }
+
+        if (global.verbose) {
+            console.log('>> Checking server data directory ...');
+        }
+        if (!fs.existsSync(this.getDataPath())) {
+            fs.mkdirSync(this.getDataPath());
+            logSuccess(`Server data directory created at ${this.getDataPath()}`);
         }
 
         const config: ServerConfiguration = {
@@ -154,7 +174,52 @@ export class Server {
             console.log(`>> Saving IP ${this._ipAddress}`);
         }
         this.save();
+
         return true;
+    }
+
+    public async copyDataToRemote(): Promise<boolean> {
+        try {
+            const output = await run('scp', [
+                '-r',
+                this.getDataPath(),
+                `${SERVER_USER}@${this._ipAddress}:${this.getRemoteDataPath()}`,
+            ]);
+            console.log(output);
+            return true;
+        } catch (e) {
+            logError(e);
+            return false;
+        }
+    }
+
+    public async copyDataFromRemote(): Promise<boolean> {
+        if (fs.readdirSync(this.getDataPath()).length > 0) {
+            logHint('Local data found. Backing up ...');
+            const backupDate = new Date().toISOString();
+            const backupData = `${this.getDataPath()}_${backupDate}`;
+            fs.renameSync(this.getDataPath(), backupData);
+            logHint(`Backup local data to ${backupData}`);
+        }
+
+        if (global.verbose) {
+            console.log('>> Remove data directory');
+        }
+        fs.rmdirSync(this.getDataPath(), { recursive: true });
+
+        console.log('\n');
+        console.log('Copy data ...');
+        try {
+            await run('scp', [
+                '-r',
+                `${SERVER_USER}@${this._ipAddress}:${this.getRemoteDataPath()}`,
+                this.getDataPath(),
+            ]);
+            return true;
+        } catch (e) {
+            logError(e);
+            return false;
+        }
     }
 
     public async isReady(): Promise<boolean> {

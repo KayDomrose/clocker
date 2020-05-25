@@ -88,7 +88,9 @@ const deploy = async (args: minimist.ParsedArgs) => {
         return;
     } else {
         logSuccess('Docker-compose file deployed');
-        console.log(`Your services are now ready at http://${server.getIpAddress()}.`);
+        console.log(
+            `Your services are now ready at ${server.getIpAddress()} (http://${server.getIpAddress()}).`
+        );
     }
 };
 
