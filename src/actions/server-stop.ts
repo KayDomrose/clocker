@@ -1,10 +1,10 @@
-import minimist from 'minimist';
 import { logColorServer, logCommand, logError, logSuccess } from '../helpers/log';
 import { Server } from '../classes/Server';
 import { removeFingerprintFromKnownHosts } from '../helpers/fingerprint';
+import { ServerArgBag } from '../clocker';
 
-const stop = async (args: minimist.ParsedArgs) => {
-    const serverId: string = args._[1];
+const serverStop = async (args: ServerArgBag) => {
+    const serverId: string = args.serverId;
     let server: Server | null = null;
     try {
         server = Server.buildFromId(serverId);
@@ -46,4 +46,4 @@ const stop = async (args: minimist.ParsedArgs) => {
     logSuccess('Fingerprints cleaned up');
 };
 
-export default stop;
+export default serverStop;

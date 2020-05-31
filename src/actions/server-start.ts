@@ -1,4 +1,3 @@
-import minimist from 'minimist';
 import {
     logColorCommand,
     logColorServer,
@@ -10,7 +9,9 @@ import {
 import { SERVER_USER, TEST_INTERVAL_SECONDS, TEST_INTERVAL_TRIES } from '../variables';
 import { Server } from '../classes/Server';
 import { addFingerprintToKnownHosts } from '../helpers/fingerprint';
-import run from '../helpers/command';
+import { ServerArgBag } from '../clocker';
+import ArgsType = jest.ArgsType;
+import { strict } from 'assert';
 
 const waitForServer = async (server: Server) => {
     let times = 0;
@@ -26,8 +27,8 @@ const waitForServer = async (server: Server) => {
     return false;
 };
 
-const start = async (args: minimist.ParsedArgs) => {
-    const serverId: string = args._[1];
+const serverStart = async (args: ServerArgBag) => {
+    const serverId: string = args.serverId;
     let server: Server | null = null;
     try {
         server = Server.buildFromId(serverId);
@@ -89,4 +90,4 @@ const start = async (args: minimist.ParsedArgs) => {
     console.log(`Run ${logColorCommand(`clocker stop ${serverId}`)} to stop the server.`);
 };
 
-export default start;
+export default serverStart;

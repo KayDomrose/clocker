@@ -3,12 +3,12 @@ import { BaseProvider } from './BaseProvider';
 import * as fs from 'fs';
 import { getProvider } from '../provider';
 import { readJson, writeJson } from '../helpers/file';
-import { RequestConfig } from '../actions/add';
 import { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
 import { logError, logHint, logSuccess } from '../helpers/log';
 import run from '../helpers/command';
 import rimraf from 'rimraf';
+import { RequestConfig } from '../actions/server-add';
 
 export interface ServerDeployment {
     composePath: string;

@@ -53,7 +53,7 @@ const requestConfig = async (): Promise<RequestConfig> => {
     return await ask<RequestConfig>(questions);
 };
 
-const add = async () => {
+const serverAdd = async () => {
     console.log('Answer these questions to configure a new server.');
     console.log('No server will be created yet.');
 
@@ -76,4 +76,4 @@ const add = async () => {
     console.log(`Run ${logColorCommand(`clocker list`)} to see all available servers.`);
 };
 
-export default add;
+export default serverAdd;

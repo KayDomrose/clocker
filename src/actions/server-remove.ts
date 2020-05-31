@@ -1,11 +1,11 @@
-import minimist from 'minimist';
 import { Server } from '../classes/Server';
 import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
 import { PromptObject } from 'prompts';
 import ask from '../helpers/ask';
+import { ServerArgBag } from '../clocker';
 
-const remove = async (args: minimist.ParsedArgs) => {
-    const serverId: string = args._[1];
+const serverRemove = async (args: ServerArgBag) => {
+    const serverId: string = args.serverId;
     let server: Server | null = null;
     try {
         server = Server.buildFromId(serverId);
@@ -42,4 +42,4 @@ const remove = async (args: minimist.ParsedArgs) => {
     }
 };
 
-export default remove;
+export default serverRemove;

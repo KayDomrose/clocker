@@ -1,8 +1,8 @@
-import minimist from 'minimist';
 import { Server } from '../classes/Server';
 import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
 import * as fs from 'fs';
 import ask from '../helpers/ask';
+import { ServerEjectArgBag } from '../clocker';
 
 const checkTargetDir = (path: string): boolean => {
     if (!fs.existsSync(path)) {
@@ -19,9 +19,9 @@ const checkTargetDir = (path: string): boolean => {
     return true;
 };
 
-const eject = async (args: minimist.ParsedArgs) => {
-    const serverId: string = args._[1];
-    const path: string = args._[2];
+const serverEject = async (args: ServerEjectArgBag) => {
+    const serverId: string = args.serverId;
+    const path: string = args.targetPath;
     let server: Server | null = null;
     try {
         server = Server.buildFromId(serverId);
@@ -51,14 +51,14 @@ const eject = async (args: minimist.ParsedArgs) => {
     console.log('\n');
     console.log(`clocker will now move all server related files to ${path}.`);
     console.log('You will no longer be able to manage this server via clocker.');
-    // const answer = await ask<{ eject: boolean }>({
-    //     type: 'confirm',
-    //     message: 'Do you want to eject now?',
-    //     name: 'eject',
-    // });
-    // if (!answer.eject) {
-    //     return;
-    // }
+    const answer = await ask<{ eject: boolean }>({
+        type: 'confirm',
+        message: 'Do you want to eject now?',
+        name: 'eject',
+    });
+    if (!answer.eject) {
+        return;
+    }
 
     console.log('\n');
     console.log('Moving files ...');
@@ -83,4 +83,4 @@ const eject = async (args: minimist.ParsedArgs) => {
     logSuccess(`Server ejected to ${path}`);
 };
 
-export default eject;
+export default serverEject;

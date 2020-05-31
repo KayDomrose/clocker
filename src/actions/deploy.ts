@@ -1,4 +1,3 @@
-import minimist from 'minimist';
 import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
 import * as fs from 'fs';
 import { SERVER_USER } from '../variables';
@@ -6,6 +5,7 @@ import { Server } from '../classes/Server';
 import * as os from 'os';
 import path from 'path';
 import run from '../helpers/command';
+import { ServerDeployArgBag } from '../clocker';
 
 const validateDockerComposeFile = async (path: string): Promise<boolean> => {
     const output = await run('docker-compose', ['--file', path, 'config']);
@@ -41,8 +41,8 @@ const deployFile = async (filePath: string, server: Server) => {
     return true;
 };
 
-const deploy = async (args: minimist.ParsedArgs) => {
-    const serverId: string = args._[1];
+const deploy = async (args: ServerDeployArgBag) => {
+    const serverId: string = args.serverId;
     let server: Server | null = null;
     try {
         server = Server.buildFromId(serverId);
@@ -51,7 +51,7 @@ const deploy = async (args: minimist.ParsedArgs) => {
         return;
     }
 
-    const dockerComposeFile = args._[2];
+    const dockerComposeFile = args.composeFile;
     console.log(`Deploying ${dockerComposeFile} to ${logColorServer(serverId)} ...`);
 
     if (!fs.existsSync(dockerComposeFile)) {
