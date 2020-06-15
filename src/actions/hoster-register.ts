@@ -39,7 +39,7 @@ const hosterRegister = async () => {
             name: 'id',
             message: 'Unique identifier (e.g hoster-project) [A-Za-z_-]',
             validate: (value) => {
-                if (allHosters().some((h) => h.getId())) {
+                if (allHosters().some((h) => h.getId() === value)) {
                     return 'Id already in use';
                 }
 
