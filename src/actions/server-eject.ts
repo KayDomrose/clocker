@@ -63,20 +63,20 @@ const serverEject = async (args: ServerEjectArgBag) => {
     console.log('\n');
     console.log('Moving files ...');
 
-    const serverFiles = fs.readdirSync(server.getServerPath());
+    const serverFiles = fs.readdirSync(server.path);
     serverFiles.forEach((file) => {
         if (file === 'config.json') {
             return;
         }
 
-        fs.renameSync(`${server!.getServerPath()}/${file}`, `${path}/${file}`);
+        fs.renameSync(`${server!.path}/${file}`, `${path}/${file}`);
         logSuccess(`${path}/${file}`);
     });
 
     console.log('\n');
     console.log('Removing server ...');
-    fs.unlinkSync(`${server.getServerPath()}/config.json`);
-    fs.rmdirSync(server.getServerPath());
+    fs.unlinkSync(`${server.path}/config.json`);
+    fs.rmdirSync(server.path);
     logSuccess('Server removed');
 
     console.log('\n');

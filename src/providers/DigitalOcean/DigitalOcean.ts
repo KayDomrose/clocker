@@ -1,10 +1,10 @@
-import { BaseProvider, ProviderConfig } from '../../classes/BaseProvider';
+import { BaseProvider, ProviderHosterVars } from '../../classes/BaseProvider';
 import { PromptObject } from 'prompts';
 import * as fs from 'fs';
 import { allServers } from '../../helpers/servers';
 import DOUniqueServerException from './DOUniqueServerException';
 
-export interface DigitalOceanConfig extends ProviderConfig {
+export interface DigitalOceanConfig extends ProviderHosterVars {
     doServerName: string;
     doServerType: string;
     doSSHPath: string;
@@ -26,32 +26,13 @@ class DigitalOcean extends BaseProvider {
         return `${config.doServerName} (${config.doServerType})`;
     }
 
-    getAdditionalInitQuestions(): PromptObject[] {
+    getAdditionalServerQuestions(): PromptObject[] {
         const servers = allServers();
         if (servers.some((s) => s.provider() instanceof DigitalOcean)) {
             throw new DOUniqueServerException();
         }
 
         return [
-            {
-                type: 'text',
-                name: 'doSSHPath',
-                message: 'Path to your ssh public key',
-                initial: `${process.env.HOME}/.ssh/id_rsa.pub`,
-                validate: (path) => {
-                    if (!fs.existsSync(path)) {
-                        return `File not found.`;
-                    }
-
-                    return true;
-                },
-            },
-            {
-                type: 'text',
-                name: 'doSSHLabel',
-                message: `Label for your ssh key (to identify in ${this.name()} dashboard)`,
-                initial: `${process.env.USER?.replace(' ', '-')}-ssh`,
-            },
             {
                 type: 'text',
                 name: 'doServerName',
@@ -85,33 +66,39 @@ class DigitalOcean extends BaseProvider {
         ];
     }
 
+    getAdditionalHosterQuestions(): PromptObject[] {
+        return [
+            {
+                type: 'text',
+                name: 'doSSHPath',
+                message: 'Path to your ssh public key',
+                initial: `${process.env.HOME}/.ssh/id_rsa.pub`,
+                validate: (path: string) => {
+                    if (!fs.existsSync(path)) {
+                        return `File not found.`;
+                    }
+
+                    return true;
+                },
+            },
+            {
+                type: 'text',
+                name: 'doSSHLabel',
+                message: `Label for your ssh key (to identify in ${this.name()} dashboard)`,
+                initial: `${process.env.USER?.replace(' ', '-')}-ssh`,
+            },
+        ];
+    }
+
     getSelectorLabel(): string {
         return 'DigitalOcean (https://www.digitalocean.com/)';
     }
 
-    getTerraformPath(): string {
-        return `${__dirname}/do.tf`;
+    getTerraformServerPath(): string {
+        return `${__dirname}/server.tf`;
     }
-
-    mapTerraformVarsToConfig(config: any): DigitalOceanConfig {
-        return {
-            _doToken: config.do_token,
-            doServerName: config.server_name,
-            doServerType: config.server_type,
-            doSSHLabel: config.ssh_key_name,
-            doSSHPath: config.ssh_key_path,
-        };
-    }
-
-    mapConfigToTerraformVars(config: DigitalOceanConfig) {
-        return {
-            do_token: config._doToken,
-            server_name: config.doServerName,
-            server_type: config.doServerType,
-            ssh_key_name: config.doSSHLabel,
-            ssh_key_path: config.doSSHPath,
-            cloud_init_path: `${__dirname}/do-cloud-init.sh`,
-        };
+    getTerraformHosterPath(): string {
+        return `${__dirname}/hoster.tf`;
     }
 }
 

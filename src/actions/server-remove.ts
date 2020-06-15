@@ -33,13 +33,19 @@ const serverRemove = async (args: ServerArgBag) => {
         name: 'confirm',
     };
 
-    await ask(config);
+    const a = await ask<{ confirm: boolean }>(config);
+    if (!a.confirm) {
+        console.log('Keeping server');
+        return;
+    }
 
     console.log('\n');
     console.log(`Removing ${logColorServer(serverId)} ...`);
-    if (server.remove()) {
-        logSuccess('Server deleted');
+    if (!server.remove()) {
+        logError('Error');
+        return;
     }
+    logSuccess('Server deleted');
 };
 
 export default serverRemove;

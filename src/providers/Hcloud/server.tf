@@ -1,9 +1,12 @@
 variable "hcloud_token" {}
 variable "server_name" {}
 variable "server_type" {}
-variable "ssh_key_name" {}
-variable "ssh_key_path" {}
+variable "ssh_id" {}
 variable "cloud_init_path" {}
+
+provider "hcloud" {
+  token = var.hcloud_token
+}
 
 data "template_cloudinit_config" "config" {
   gzip          = false
@@ -25,24 +28,15 @@ data "template_cloudinit_config" "config" {
   }
 }
 
-provider "hcloud" {
-  token = var.hcloud_token
-}
-
 resource "hcloud_server" "server"  {
   name = var.server_name
   image = "debian-10"
   server_type = "cx11"
   location = "nbg1"
   ssh_keys = [
-    hcloud_ssh_key.ssh.id
+    var.ssh_id
   ]
   user_data = data.template_cloudinit_config.config.rendered
-}
-
-resource "hcloud_ssh_key" "ssh" {
-  name = var.ssh_key_name
-  public_key = file(var.ssh_key_path)
 }
 
 output "ip_address" {

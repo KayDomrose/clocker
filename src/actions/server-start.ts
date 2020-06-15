@@ -79,11 +79,13 @@ const serverStart = async (args: ServerArgBag) => {
     console.log('Copy data to remote server ...');
     if (!(await server.copyDataToRemote())) {
     }
-    logSuccess(`Data copied to ${server.getRemoteDataPath()} on ${server.getIpAddress()}`);
+    logSuccess(`Data copied to ${server.remote_data_path} on ${server.getIpAddress()}`);
 
     console.log('\n');
     logSuccess(`Server ${logColorServer(serverId)} successfully started`);
     console.log(`Server ip is ${logColorServer(server.getIpAddress()!)}.`);
+    const command = `ssh ${SERVER_USER}@${server.getIpAddress()}`;
+    console.log(`You can access server by running ${logColorCommand(command)}.`);
     logError('You will now be charged by your server provider while this server is running.');
     console.log('\n');
     console.log(`Run ${logColorCommand(`clocker deploy ${serverId} DOCKER-COMPOSE-FILE`)}.`);

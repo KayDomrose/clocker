@@ -6,6 +6,7 @@ import checkInit from '../helpers/check-init';
 const createHomeDir = (): boolean => {
     fs.mkdirSync(BASE_PATH);
     fs.mkdirSync(`${BASE_PATH}/servers`);
+    fs.mkdirSync(`${BASE_PATH}/providers`);
 
     return true;
 };
@@ -18,10 +19,6 @@ const init = async () => {
         logSuccess(`clocker initialized`);
         console.log(`clocker dir created at ${BASE_PATH}.`);
     }
-
-    console.log('\n');
-    console.log(`Run ${logColorCommand('clocker list')} to see all servers.`);
-    console.log(`Run ${logColorCommand('clocker add')} to add a server.`);
 };
 
 export default init;

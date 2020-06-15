@@ -8,6 +8,8 @@ import deploy from '../actions/deploy';
 import serverEject from '../actions/server-eject';
 import { logColorCommand, logError } from './log';
 import { Action, ArgBag } from '../clocker';
+import hosterRegister from '../actions/hoster-register';
+import hosterUnregister from '../actions/hoster-unregister';
 
 const actions: Action[] = [
     {
@@ -19,36 +21,41 @@ const actions: Action[] = [
         action: list,
     },
     {
-        namespace: 'server',
+        namespace: 'hoster',
+        name: 'register',
+        action: hosterRegister,
+    },
+    {
+        namespace: 'hoster',
+        name: 'unregister',
+        args: ['hosterId'],
+        action: hosterUnregister,
+    },
+    {
         name: 'add',
         action: serverAdd,
     },
     {
-        namespace: 'server',
         name: 'start',
         args: ['serverId'],
         action: serverStart,
     },
     {
-        namespace: 'server',
         name: 'stop',
         args: ['serverId'],
         action: serverStop,
     },
     {
-        namespace: 'server',
         name: 'remove',
         args: ['serverId'],
         action: serverRemove,
     },
     {
-        namespace: 'server',
         name: 'deploy',
         args: ['serverId', 'composeFile'],
         action: deploy,
     },
     {
-        namespace: 'server',
         name: 'eject',
         args: ['serverId', 'targetPath'],
         action: serverEject,

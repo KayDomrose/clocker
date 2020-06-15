@@ -1,75 +1,70 @@
 import { SERVER_USER, SERVERS_PATH, TEST_DOCKER_CONTAINER_PORT } from '../variables';
-import { BaseProvider } from './BaseProvider';
+import { ProviderServerVars } from './BaseProvider';
 import * as fs from 'fs';
-import { getProvider } from '../provider';
-import { readJson, writeJson } from '../helpers/file';
+import { readJson, readTfVars, writeJson, writeTfVars } from '../helpers/file';
 import { AxiosResponse } from 'axios';
 import axiosRequest from '@nelsonomuto/axios-request-timeout';
-import { logError, logHint, logSuccess } from '../helpers/log';
-import run from '../helpers/command';
+import { logError, logHint, logVerbose } from '../helpers/log';
+import run, { RunResult } from '../helpers/command';
 import rimraf from 'rimraf';
-import { RequestConfig } from '../actions/server-add';
+import { ServerUserInput } from '../actions/server-add';
+import Hoster from './Hoster';
 
 export interface ServerDeployment {
     composePath: string;
     lastDeployment: Date | null;
 }
 
-export interface ServerConfiguration {
-    provider: string;
+export interface ServerConfig {
+    hosterId: string;
     ip: string;
     deployments: ServerDeployment[];
 }
 
-export interface ServerSavePaths {
-    configPath: string;
-    terraformPath: string;
-    terraformVariablesPath: string;
-}
-
 export class Server {
     private readonly _id: string;
-    private _path: string = '';
-    private _provider: BaseProvider | null = null;
+    private _vars: ProviderServerVars = {};
     private _ipAddress: string | null = null;
     private _deployments: ServerDeployment[] = [];
 
-    constructor(id: string) {
+    public readonly hosterId: string;
+    public readonly hoster: Hoster;
+
+    public readonly path: string;
+    public readonly data_path: string;
+    public readonly remote_data_path: string;
+    public readonly config_path: string;
+    public readonly terraform_template_path: string;
+    public readonly terraform_variable_path: string;
+
+    constructor(id: string, hosterId: string) {
         this._id = id;
 
-        this.setServerPath();
-    }
+        this.path = Server.path(this._id);
+        this.terraform_template_path = `${this.path}/server.tf`;
+        this.terraform_variable_path = `${this.path}/server.tfvars`;
+        this.config_path = `${this.path}/config`;
+        this.data_path = `${this.path}/clocker-data`;
+        this.remote_data_path = `/home/${SERVER_USER}/clocker-data`;
 
-    public getDataPath(): string {
-        return `${this._path}/clocker-data`;
-    }
-
-    public getRemoteDataPath(): string {
-        return '~/clocker-data';
+        this.hosterId = hosterId;
+        this.hoster = Hoster.buildFromId(this.hosterId);
     }
 
     public getId(): string {
         return this._id;
     }
 
-    private setServerPath() {
-        this._path = `${SERVERS_PATH}/${this._id}`;
-    }
-
-    public getServerPath(): string {
-        return this._path;
-    }
-
     public getIpAddress(): string {
         return this._ipAddress || '';
     }
 
-    public setProvider(providerId: string) {
-        this._provider = getProvider(providerId);
-    }
-
     public setIpAddress(ip: string) {
         this._ipAddress = ip;
+    }
+
+    public setVars(vars: ProviderServerVars) {
+        this._vars = vars;
     }
 
     public addDeployment(deployment: ServerDeployment): boolean {
@@ -93,75 +88,74 @@ export class Server {
         return this._deployments;
     }
 
-    public save(): ServerSavePaths {
-        if (global.verbose) {
-            console.log('>> Checking server directory ...');
-        }
-        if (!fs.existsSync(this._path)) {
-            fs.mkdirSync(this._path);
-            logSuccess(`Server directory created at ${this._path}`);
+    public save(): boolean {
+        if (!fs.existsSync(this.path)) {
+            logVerbose(`Created server directory: ${this.path}`);
+            fs.mkdirSync(this.path);
         }
 
-        if (global.verbose) {
-            console.log('>> Checking server data directory ...');
+        logVerbose(`Writing config: ${this.config_path}`);
+        writeJson(this.config_path, {
+            hosterId: this.hosterId,
+            deployments: this._deployments,
+            ip: this._ipAddress,
+        } as ServerConfig);
+
+        logVerbose(`Writing terraform vars: ${this.terraform_variable_path}`);
+        writeTfVars(this.terraform_variable_path, this._vars);
+
+        logVerbose(`Created Data directory: ${this.data_path}`);
+        if (!fs.existsSync(this.data_path)) {
+            fs.mkdirSync(this.data_path);
         }
-        if (!fs.existsSync(this.getDataPath())) {
-            fs.mkdirSync(this.getDataPath());
-            logSuccess(`Server data directory created at ${this.getDataPath()}`);
-        }
 
-        const config: ServerConfiguration = {
-            provider: this._provider?.key() || '',
-            ip: this._ipAddress || '',
-            deployments: this._deployments || [],
-        };
-        writeJson(this._path, 'config', config);
-        const configPath = `${this._path}/config.json`;
+        logVerbose(`Copying terraform server template: ${this.terraform_template_path} `);
+        fs.copyFileSync(
+            this.hoster.provider.getTerraformServerPath(),
+            this.terraform_template_path
+        );
 
-        const terraformPath = this._provider!.copyTerraformTemplate(this._path);
-        const terraformVariablesPath = this._provider!.saveToTerraformVars(this._path);
-
-        return {
-            configPath,
-            terraformPath,
-            terraformVariablesPath,
-        };
-    }
-
-    public provider(): BaseProvider {
-        if (this._provider === null) {
-            throw new Error(`Provider not set for ${this._id}`);
-        }
-        return this._provider;
+        return true;
     }
 
     public async initializeTerraform(): Promise<boolean> {
         const result = await run('terraform', ['init'], {
-            cwd: this._path,
+            cwd: this.path,
         });
         return result !== null;
     }
 
-    public async start(): Promise<boolean> {
-        const terraformResult = await run(
+    private async terraformCommand(action: 'apply' | 'destroy'): Promise<RunResult> {
+        const additionalVars = this.hoster.provider.getStaticServerVars();
+        const v = Object.keys(additionalVars).map((key) => `--var '${key}=${additionalVars[key]}'`);
+
+        return await run(
             'terraform',
-            ['apply', '--auto-approve', '--input=false', this._path],
+            [
+                action,
+                '--auto-approve',
+                '--input=false',
+                `--var-file=${this.terraform_variable_path}`,
+                `--var-file=${this.hoster.terraform_variable_path}`,
+                ...v,
+                this.path,
+            ],
             {
-                cwd: this._path,
+                cwd: this.path,
                 shell: true,
             }
         );
+    }
+
+    public async start(): Promise<boolean> {
+        const terraformResult = await this.terraformCommand('apply');
         if (terraformResult === null) {
             return false;
         }
 
-        if (global.verbose) {
-            console.log('>> Server created');
-            console.log('>> Fetching IP');
-        }
-
+        logVerbose(`Fetching IP`);
         const ipOutput = await run('terraform', ['output', 'ip_address'], {
-            cwd: this._path,
+            cwd: this.path,
         });
 
         if (ipOutput === null) {
@@ -170,9 +164,7 @@ export class Server {
         }
 
         this._ipAddress = ipOutput.replace('\n', '');
-        if (global.verbose) {
-            console.log(`>> Saving IP ${this._ipAddress}`);
-        }
+        logVerbose(`Saving IP ${this._ipAddress}`);
         this.save();
 
         return true;
@@ -182,8 +174,8 @@ export class Server {
         try {
             const output = await run('scp', [
                 '-r',
-                this.getDataPath(),
-                `${SERVER_USER}@${this._ipAddress}:${this.getRemoteDataPath()}`,
+                this.data_path,
+                `${SERVER_USER}@${this._ipAddress}:${this.remote_data_path}`,
             ]);
             console.log(output);
             return true;
@@ -194,26 +186,21 @@ export class Server {
     }
 
     public async copyDataFromRemote(): Promise<boolean> {
-        if (fs.readdirSync(this.getDataPath()).length > 0) {
+        if (fs.readdirSync(this.data_path).length > 0) {
             logHint('Local data found. Backing up ...');
             const backupDate = new Date().toISOString();
-            const backupData = `${this.getDataPath()}_${backupDate}`;
-            fs.renameSync(this.getDataPath(), backupData);
+            const backupData = `${this.data_path}_${backupDate}`;
+            fs.renameSync(this.data_path, backupData);
             logHint(`Backup local data to ${backupData}`);
+
+            fs.rmdirSync(this.data_path, { recursive: true });
         }
 
-        if (global.verbose) {
-            console.log('>> Remove data directory');
-        }
-        fs.rmdirSync(this.getDataPath(), { recursive: true });
-
-        console.log('\n');
-        console.log('Copy data ...');
         try {
             await run('scp', [
                 '-r',
-                `${SERVER_USER}@${this._ipAddress}:${this.getRemoteDataPath()}`,
-                this.getDataPath(),
+                `${SERVER_USER}@${this._ipAddress}:${this.remote_data_path}`,
+                this.data_path,
             ]);
             return true;
         } catch (e) {
@@ -223,29 +210,22 @@ export class Server {
     }
 
     public async isReady(): Promise<boolean> {
-        if (global.verbose) {
-            console.log(`>> Check if server ${this._id} is running.`);
-        }
+        logVerbose(`Check if server ${this._id} is running.`);
+
         if (!this._ipAddress) {
-            if (global.verbose) {
-                console.log(`>> No ip address for ${this._id}`);
-            }
+            logVerbose(`No ip address for ${this._id}`);
             return false;
         }
 
         const url = `http://${this._ipAddress}:${TEST_DOCKER_CONTAINER_PORT}`;
-        if (global.verbose) {
-            console.log(`>> Fetching ${url}`);
-        }
+        logVerbose(`Fetching ${url}`);
         try {
             const result: AxiosResponse = await axiosRequest({
                 url,
                 method: 'GET',
                 timeout: 1000,
             });
-            if (global.verbose) {
-                console.log(`>> Fetch status: ${result.status}`);
-            }
+            logVerbose(`Fetch status: ${result.status}`);
             return result.status === 200;
         } catch (e) {
             return false;
@@ -253,9 +233,7 @@ export class Server {
     }
 
     public async stop(): Promise<boolean> {
-        const output = await run('terraform', ['destroy', '--auto-approve'], {
-            cwd: this._path,
-        });
+        const output = await this.terraformCommand('destroy');
 
         if (output === null) {
             logError('Error while destroying server');
@@ -269,59 +247,33 @@ export class Server {
     }
 
     public remove(): boolean {
-        rimraf.sync(this._path);
+        logVerbose(`Delete directory ${this.path}`);
+        rimraf.sync(this.path);
 
         return true;
     }
 
-    public loadProviderConfig() {
-        const varPath = `${this._path}/terraform.tfvars`;
-        if (!fs.existsSync(varPath)) {
-            return;
-        }
-
-        const content = fs.readFileSync(varPath).toString();
-
-        const vars: { [key: string]: string } = {};
-        content.split('\n').forEach((pair) => {
-            const key = pair.slice(0, pair.indexOf('='));
-            const value = pair.slice(pair.indexOf('=') + 2).replace('"', '');
-            vars[key] = value;
-        });
-        const config = this._provider?.mapTerraformVarsToConfig(vars);
-        this._provider?.setConfig(config);
+    public static path(id: string): string {
+        return `${SERVERS_PATH}/${id}`;
     }
 
     public static buildFromId(id: string): Server {
-        const serverPath = `${SERVERS_PATH}/${id}`;
+        const config: ServerConfig = readJson(`${Server.path(id)}/config`);
 
-        if (!fs.existsSync(serverPath)) {
-            throw new Error(`Server ${id} not found.`);
-        }
-        if (!fs.existsSync(`${serverPath}/config.json`)) {
-            throw new Error(`No config found for ${id}`);
-        }
-
-        const config: ServerConfiguration = readJson(serverPath, 'config');
-        ['provider', 'ip'].forEach((requiredField) => {
-            if (!Object(config).hasOwnProperty(requiredField)) {
-                throw new Error(`Required field "${requiredField}" missing in config for ${id}`);
-            }
-        });
-
-        const server = new Server(id);
-        server.setProvider(config.provider);
+        const server = new Server(id, config.hosterId);
+        server.setVars(readTfVars(server.terraform_variable_path));
         server.setIpAddress(config.ip);
         server.setDeployments(config.deployments || []);
-        server.loadProviderConfig();
         return server;
     }
 
-    public static buildFromProviderConfig(config: RequestConfig): Server {
-        const server = new Server(config.id);
-        server.setProvider(config.provider);
+    public static buildFromUserInput(
+        initialInput: ServerUserInput,
+        vars: ProviderServerVars
+    ): Server {
+        const server = new Server(initialInput.id, initialInput.hoster);
+        server.setVars(vars);
         server.setDeployments([]);
-        server.loadProviderConfig();
         return server;
     }
 }

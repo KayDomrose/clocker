@@ -1,16 +1,16 @@
-import { BaseProvider, ProviderConfig } from '../../classes/BaseProvider';
+import {
+    BaseProvider,
+    InitialiseHosterOutput,
+    ProviderHosterVars,
+    StaticServerVars,
+} from '../../classes/BaseProvider';
 import { PromptObject } from 'prompts';
 import * as fs from 'fs';
-import { allServers } from '../../helpers/servers';
-import { Server } from '../../classes/Server';
-import { logColorServer, logError } from '../../helpers/log';
+import run from '../../helpers/command';
 
-export interface HcloudConfig extends ProviderConfig {
-    hcloudServerName: string;
-    hcloudServerType: string;
-    hcloudSSHPath: string;
-    hcloudSSHLabel: string;
-    _hcloudToken: string;
+export interface HcloudConfig extends ProviderHosterVars {
+    server_name: string;
+    server_type: string;
 }
 
 class Hcloud extends BaseProvider {
@@ -23,67 +23,21 @@ class Hcloud extends BaseProvider {
     }
 
     getServerInfo(): string {
-        const config: HcloudConfig = this._config as HcloudConfig;
-        return `${config.hcloudServerName} (${config.hcloudServerType})`;
+        return '';
     }
 
-    private getOtherServersWithSSHPath(servers: Server[], path: string): Server | undefined {
-        return servers.find((s: Server) => {
-            if (!(s.provider() instanceof Hcloud)) {
-                return false;
-            }
-            const config: HcloudConfig = s.provider().getConfig();
-            return config.hcloudSSHPath === path;
-        });
-    }
-
-    getAdditionalInitQuestions(): PromptObject[] {
-        const servers = allServers();
+    getAdditionalServerQuestions(): PromptObject[] {
         return [
             {
                 type: 'text',
-                name: 'hcloudSSHPath',
-                message: 'Path to your ssh public key',
-                initial: `${process.env.HOME}/.ssh/id_rsa.pub`,
-                validate: (path) => {
-                    if (!fs.existsSync(path)) {
-                        return `File not found.`;
-                    }
-
-                    const server = this.getOtherServersWithSSHPath(servers, path);
-                    if (server !== undefined) {
-                        console.log('\n');
-                        logError('ATTENTION');
-                        console.log(
-                            `There already is a server for ${this.name()} configured with the same ssh public key (${logColorServer(
-                                server.getId()
-                            )}).`
-                        );
-                        console.log(
-                            `Hetzner does not allow the same ssh key twice for the same project, so make sure to use another hetzner project (that means using a different Hetzner Cloud API-Token).`
-                        );
-                        console.log('\n');
-                    }
-
-                    return true;
-                },
-            },
-            {
-                type: 'text',
-                name: 'hcloudSSHLabel',
-                message: 'Label for your ssh key (to identify in Hetzner backend)',
-                initial: `${process.env.USER?.replace(' ', '-')}-ssh`,
-            },
-            {
-                type: 'text',
-                name: 'hcloudServerName',
+                name: 'server_name',
                 message: 'Label for the server (to identify in Hetzner backend)',
                 initial: '',
                 validate: (value) => !value.includes(' '),
             },
             {
                 type: 'select',
-                name: 'hcloudServerType',
+                name: 'server_type',
                 message: 'Server type (https://www.hetzner.com/cloud#pricing)',
                 choices: [
                     {
@@ -92,11 +46,16 @@ class Hcloud extends BaseProvider {
                     },
                 ],
             },
+        ];
+    }
+
+    getAdditionalHosterQuestions(): PromptObject[] {
+        return [
             {
                 type: 'password',
-                name: '_hcloudToken',
+                name: 'hcloud_token',
                 message:
-                    'Your Hetzner Cloud API-Token (https://docs.hetzner.cloud/#overview-getting-started)',
+                    'Your Hetzner Cloud API-Token (https://docs.hetzner.cloud/#overview-authentication)',
                 validate: (value) => {
                     if (value.length === 0) {
                         return 'API-Token can not be empty';
@@ -105,6 +64,25 @@ class Hcloud extends BaseProvider {
                     return true;
                 },
             },
+            {
+                type: 'text',
+                name: 'ssh_key_path',
+                message: 'Path to your ssh public key',
+                initial: `${process.env.HOME}/.ssh/id_rsa.pub`,
+                validate: (path: string) => {
+                    if (!fs.existsSync(path)) {
+                        return `File not found.`;
+                    }
+
+                    return true;
+                },
+            },
+            {
+                type: 'text',
+                name: 'ssh_key_name',
+                message: 'Label for your ssh key (to identify in Hetzner backend)',
+                initial: `${process.env.USER?.replace(' ', '-')}-ssh`,
+            },
         ];
     }
 
@@ -112,27 +90,25 @@ class Hcloud extends BaseProvider {
         return 'Hetzner Cloud (https://www.hetzner.com/cloud)';
     }
 
-    getTerraformPath(): string {
-        return `${__dirname}/hcloud.tf`;
+    getTerraformHosterPath(): string {
+        return `${__dirname}/hoster.tf`;
     }
 
-    mapTerraformVarsToConfig(config: any): HcloudConfig {
+    getTerraformServerPath(): string {
+        return `${__dirname}/server.tf`;
+    }
+
+    async getInitialiseHosterOutput(path: string): Promise<InitialiseHosterOutput> {
+        const sshId = await run('terraform', ['output', 'ssh_id'], {
+            cwd: path,
+        });
         return {
-            _hcloudToken: config.hcloud_token,
-            hcloudServerName: config.server_name,
-            hcloudServerType: config.server_type,
-            hcloudSSHLabel: config.ssh_key_name,
-            hcloudSSHPath: config.ssh_key_path,
+            ssh_id: sshId?.replace('\n', '') || '',
         };
     }
 
-    mapConfigToTerraformVars(config: HcloudConfig) {
+    getStaticServerVars(): StaticServerVars {
         return {
-            hcloud_token: config._hcloudToken,
-            server_name: config.hcloudServerName,
-            server_type: config.hcloudServerType,
-            ssh_key_name: config.hcloudSSHLabel,
-            ssh_key_path: config.hcloudSSHPath,
             cloud_init_path: `${__dirname}/hcloud-cloud-init.sh`,
         };
     }

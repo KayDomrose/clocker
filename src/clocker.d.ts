@@ -28,3 +28,7 @@ export interface ServerDeployArgBag extends ServerArgBag {
 export interface ServerEjectArgBag extends ServerArgBag {
     targetPath: string;
 }
+
+export interface HosterArgBag {
+    hosterId: string;
+}

@@ -24,7 +24,7 @@ const serverStop = async (args: ServerArgBag) => {
     console.log('Saving data from server ...');
     if (!(await server.copyDataFromRemote())) {
     }
-    logSuccess(`Data saved locally to ${server.getDataPath()}`);
+    logSuccess(`Data saved locally to ${server.data_path}`);
 
     console.log('\n');
     console.log('Stopping ...');

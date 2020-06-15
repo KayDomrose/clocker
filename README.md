@@ -14,10 +14,10 @@ clocker deploy <my-server> ./docker-compose.yml
 
 You can set up a new server in minutes, without any manual server configuration, destroy and re-create it anytime you need.
 
-It's ideal for you if you ...  
-... need a small service online every now and then without setting up a server every time or paying for a server you don't use or that is not running.  
-... want a place to quickly showcase a project in a more realistic environment.  
-... have a small budget or no experience in server administration but want your work online.
+It's ideal for you if you  
+- need a small service online every now and then without setting up a server every time or paying for a server you don't use or that is not running.
+- want a place to quickly showcase a project in a more realistic environment.
+- have a small budget or no experience in server administration but want your work online.
 
 clocker exposes all the magic it does in terraform templates and docker commands.  
 When you want to get more professional, you can use this as a starting point for a more advanced provisioning.
@@ -75,9 +75,9 @@ clocker list
 ## Installation
 
 ### Supported OS
-clocker is tested only on OSX yet.
+clocker is only tested on macOS yet.
 
-Linux may also be supported, as clocker only uses terraform, docker and some basic cli tools under the hood.
+Linux may also be supported, as clocker only uses terraform, docker and some basic commands under the hood.
 
 
 ### Prerequisites 

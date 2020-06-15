@@ -35,10 +35,11 @@ General
     ${logColorCommand('init')}                                      Initialize clocker
     ${logColorCommand('list')}                                      List all servers with state
     
-Provider ${logColorCommand('clocker provider ...')}  
-    ${logColorCommand('add')}                                       Configure a new provider       
+Hoster ${logColorCommand('clocker hoster ...')}  
+    ${logColorCommand('register')}                                  Register a new hoster for servers      
+    ${logColorCommand('unregister')}                                Unregister an existing hoster       
     
-Server ${logColorCommand('clocker server ...')}    
+Server ${logColorCommand('clocker ...')}    
     ${logColorCommand('add')}                                       Configure a new remote cloud server
     ${logColorCommand('start SERVER-ID')}                           Start a server
     ${logColorCommand('stop SERVER-ID')}                            Stop a server

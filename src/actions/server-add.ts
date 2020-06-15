@@ -1,18 +1,31 @@
 import { Choice, PromptObject } from 'prompts';
-import { getProvider, providers } from '../provider';
-import { logColorCommand, logColorServer, logSuccess } from '../helpers/log';
+import { getProvider, providers } from '../helpers/provider';
+import { logColorCommand, logColorServer, logError, logSuccess } from '../helpers/log';
 import { Server } from '../classes/Server';
 import { allServers } from '../helpers/servers';
 import ask from '../helpers/ask';
-import { ProviderConfig } from '../classes/BaseProvider';
+import { ProviderHosterVars, ProviderServerVars } from '../classes/BaseProvider';
+import { allHosters } from '../helpers/hosters';
+import Hoster from '../classes/Hoster';
 
-export interface RequestConfig {
+export interface ServerUserInput {
     id: string;
-    provider: string;
+    hoster: string;
 }
 
-const requestConfig = async (): Promise<RequestConfig> => {
+const requestConfig = async (): Promise<ServerUserInput> => {
     const questions: PromptObject[] = [
+        {
+            type: 'select',
+            name: 'hoster',
+            message: 'Choose your hoster',
+            choices: allHosters().map(
+                (hoster: Hoster): Choice => ({
+                    title: hoster.getId(),
+                    value: hoster.getId(),
+                })
+            ),
+        },
         {
             type: 'text',
             name: 'id',
@@ -34,46 +47,40 @@ const requestConfig = async (): Promise<RequestConfig> => {
                 return true;
             },
         },
-        {
-            type: 'select',
-            name: 'provider',
-            message: 'Cloud server provider',
-            choices: Object.keys(providers).map(
-                (providerKey: string): Choice => {
-                    const provider = getProvider(providerKey);
-                    return {
-                        title: provider.getSelectorLabel(),
-                        value: providerKey,
-                    } as Choice;
-                }
-            ),
-        },
     ];
 
-    return await ask<RequestConfig>(questions);
+    return await ask<ServerUserInput>(questions);
 };
 
 const serverAdd = async () => {
-    console.log('Answer these questions to configure a new server.');
-    console.log('No server will be created yet.');
-
-    const config: RequestConfig = await requestConfig();
-
-    const server = Server.buildFromProviderConfig(config);
-
-    const providerQuestions: PromptObject[] = server.provider().getAdditionalInitQuestions();
-    const providerAnswers = await ask<ProviderConfig>(providerQuestions);
-
-    server.provider().setConfig(providerAnswers);
-
-    if (server.save()) {
-        logSuccess(
-            `\nServer ${logColorServer(server.getId())} created at ${server.getServerPath()}`
+    if (allHosters().length === 0) {
+        logError('No hosters found');
+        console.log(
+            `Run ${logColorCommand('clocker hoster register')} first to register a new hoster.`
         );
+        return;
     }
 
+    console.log('Answer these questions to configure a new server.');
+    console.log('No server will be created yet.');
+    console.log('\n');
+
+    const input: ServerUserInput = await requestConfig();
+
+    const hoster = Hoster.buildFromId(input.hoster);
+
+    const providerQuestions: PromptObject[] = hoster.provider.getAdditionalServerQuestions();
+    const providerAnswers = await ask<ProviderServerVars>(providerQuestions);
+
+    const server = Server.buildFromUserInput(input, providerAnswers);
+
+    if (!server.save()) {
+        logError('Error');
+    }
+
+    console.log('\n');
+    logSuccess(`Server ${logColorServer(server.getId())} added`);
     console.log(`Run ${logColorCommand(`clocker start ${server.getId()}`)} to start this server.`);
-    console.log(`Run ${logColorCommand(`clocker list`)} to see all available servers.`);
 };
 
 export default serverAdd;

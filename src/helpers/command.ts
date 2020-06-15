@@ -1,15 +1,11 @@
 // @ts-ignore
 import spawn from 'await-spawn';
-import { logColorCommand } from './log';
+import { logColorCommand, logVerbose } from './log';
 
-const run = async (
-    command: string,
-    args: string[] = [],
-    options: any = {}
-): Promise<string | null> => {
-    if (global.verbose) {
-        console.log(`>> Running ${logColorCommand(`${command} ${args.join(' ')}`)}`);
-    }
+export type RunResult = string | null;
+
+const run = async (command: string, args: string[] = [], options: any = {}): Promise<RunResult> => {
+    logVerbose(`>> Running ${logColorCommand(`${command} ${args.join(' ')}`)}`);
     try {
         const stdOut: Buffer = await spawn(command, args, options);
         if (global.verbose) {
