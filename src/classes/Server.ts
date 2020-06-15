@@ -9,6 +9,7 @@ import run, { RunResult } from '../helpers/command';
 import rimraf from 'rimraf';
 import { ServerUserInput } from '../actions/server-add';
 import Hoster from './Hoster';
+import ServerNotFoundException from '../exceptions/ServerNotFoundException';
 
 export interface ServerDeployment {
     composePath: string;
@@ -258,7 +259,11 @@ export class Server {
     }
 
     public static buildFromId(id: string): Server {
-        const config: ServerConfig = readJson(`${Server.path(id)}/config`);
+        const configPath = `${Server.path(id)}/config`;
+        if (!fs.existsSync(`${configPath}.json`)) {
+            throw new ServerNotFoundException(id);
+        }
+        const config: ServerConfig = readJson(configPath);
 
         const server = new Server(id, config.hosterId);
         server.setVars(readTfVars(server.terraform_variable_path));

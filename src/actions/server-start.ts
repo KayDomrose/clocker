@@ -28,17 +28,9 @@ const waitForServer = async (server: Server) => {
 };
 
 const serverStart = async (args: ServerArgBag) => {
-    const serverId: string = args.serverId;
-    let server: Server | null = null;
-    try {
-        server = Server.buildFromId(serverId);
-    } catch (e) {
-        logError(`Can't find server with id ${serverId}`);
-        console.log(`Run ${logColorCommand('clocker list')} to get all servers.`);
-        return;
-    }
+    const server = Server.buildFromId(args.serverId);
 
-    console.log(`Starting ${logColorServer(serverId)} ...`);
+    console.log(`Starting ${logColorServer(server.getId())} ...`);
 
     console.log('\n');
     console.log('Initialize terraform ...');
@@ -82,14 +74,14 @@ const serverStart = async (args: ServerArgBag) => {
     logSuccess(`Data copied to ${server.remote_data_path} on ${server.getIpAddress()}`);
 
     console.log('\n');
-    logSuccess(`Server ${logColorServer(serverId)} successfully started`);
+    logSuccess(`Server ${logColorServer(server.getId())} successfully started`);
     console.log(`Server ip is ${logColorServer(server.getIpAddress()!)}.`);
     const command = `ssh ${SERVER_USER}@${server.getIpAddress()}`;
     console.log(`You can access server by running ${logColorCommand(command)}.`);
     logError('You will now be charged by your server provider while this server is running.');
     console.log('\n');
-    console.log(`Run ${logColorCommand(`clocker deploy ${serverId} DOCKER-COMPOSE-FILE`)}.`);
-    console.log(`Run ${logColorCommand(`clocker stop ${serverId}`)} to stop the server.`);
+    console.log(`Run ${logColorCommand(`clocker deploy ${server.getId()} DOCKER-COMPOSE-FILE`)}.`);
+    console.log(`Run ${logColorCommand(`clocker stop ${server.getId()}`)} to stop the server.`);
 };
 
 export default serverStart;

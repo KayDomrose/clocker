@@ -20,17 +20,9 @@ const checkTargetDir = (path: string): boolean => {
 };
 
 const serverEject = async (args: ServerEjectArgBag) => {
-    const serverId: string = args.serverId;
     const path: string = args.targetPath;
-    let server: Server | null = null;
-    try {
-        server = Server.buildFromId(serverId);
-    } catch (e) {
-        logError(`Can't find server with id ${serverId}`);
-        console.log(`Run ${logColorCommand('clocker list')} to get all servers.`);
-        return;
-    }
-    console.log(`== Eject server ${logColorServer(serverId)} ==`);
+    const server = Server.buildFromId(args.serverId);
+    console.log(`== Eject server ${logColorServer(server.getId())} ==`);
 
     console.log('\n');
     console.log(`Checking server state ...`);

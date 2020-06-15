@@ -4,16 +4,9 @@ import { removeFingerprintFromKnownHosts } from '../helpers/fingerprint';
 import { ServerArgBag } from '../clocker';
 
 const serverStop = async (args: ServerArgBag) => {
-    const serverId: string = args.serverId;
-    let server: Server | null = null;
-    try {
-        server = Server.buildFromId(serverId);
-    } catch (e) {
-        console.error(e);
-        return;
-    }
+    const server = Server.buildFromId(args.serverId);
 
-    console.log(`Stopping ${logColorServer(serverId)} ...`);
+    console.log(`Stopping ${logColorServer(server.getId())} ...`);
 
     if (!(await server.isReady())) {
         logSuccess('Server already stopped');

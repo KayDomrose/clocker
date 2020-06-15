@@ -5,15 +5,7 @@ import ask from '../helpers/ask';
 import { ServerArgBag } from '../clocker';
 
 const serverRemove = async (args: ServerArgBag) => {
-    const serverId: string = args.serverId;
-    let server: Server | null = null;
-    try {
-        server = Server.buildFromId(serverId);
-    } catch (e) {
-        logError(`Can't find server with id ${serverId}`);
-        console.log(`Run ${logColorCommand('clocker list')} to get all servers.`);
-        return;
-    }
+    const server = Server.buildFromId(args.serverId);
 
     if (await server.isReady()) {
         logError('Server is still running');
@@ -40,7 +32,7 @@ const serverRemove = async (args: ServerArgBag) => {
     }
 
     console.log('\n');
-    console.log(`Removing ${logColorServer(serverId)} ...`);
+    console.log(`Removing ${logColorServer(server.getId())} ...`);
     if (!server.remove()) {
         logError('Error');
         return;

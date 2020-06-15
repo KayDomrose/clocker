@@ -42,17 +42,10 @@ const deployFile = async (filePath: string, server: Server) => {
 };
 
 const deploy = async (args: ServerDeployArgBag) => {
-    const serverId: string = args.serverId;
-    let server: Server | null = null;
-    try {
-        server = Server.buildFromId(serverId);
-    } catch (e) {
-        console.error(e);
-        return;
-    }
+    const server = Server.buildFromId(args.serverId);
 
     const dockerComposeFile = args.composeFile;
-    console.log(`Deploying ${dockerComposeFile} to ${logColorServer(serverId)} ...`);
+    console.log(`Deploying ${dockerComposeFile} to ${logColorServer(server.getId())} ...`);
 
     if (!fs.existsSync(dockerComposeFile)) {
         logError(`Can't find file at ${dockerComposeFile}`);
@@ -74,7 +67,7 @@ const deploy = async (args: ServerDeployArgBag) => {
         logError('Server is not running');
         console.log(
             `Run ${logColorCommand(
-                `clocker start ${logColorServer(serverId)}`
+                `clocker start ${logColorServer(server.getId())}`
             )} to start the server.`
         );
         return;
