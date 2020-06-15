@@ -2,14 +2,17 @@
 clocker is a command line tool, that help you to set up remote server and deploy your docker-compose file with just a few commands.
 
 ```shell script
+// Register a new cloud hoster like DigitalOcean with your access token
+clocker hoster register
+
+// Create a server <my-server>
 clocker add
-// Configure your server <my-server>
 
-clocker start <my-server>
 // Create a new server based on configuration and provision it, ready for docker 
+clocker start <my-server>
 
-clocker deploy <my-server> ./docker-compose.yml
 // Deploy your project to the server. Exposed ports are reachable via server ip 
+clocker deploy <my-server> ./docker-compose.yml
 ```
 
 You can set up a new server in minutes, without any manual server configuration, destroy and re-create it anytime you need.
@@ -41,25 +44,32 @@ Only the minimal happy path is working for now.
 
 ## Overview
 See below for more details on how to [install](#Installation) and [use](#Usage) clocker.
-### Step 1: Configure a new server
+
+### Step 1: Register a hoster
+```shell script
+clocker hoster register
+```
+![Clocker hoster register step](./docs/assets/readme-hoster-register.png)
+
+### Step 2: Configure a new server
 ```shell script
 clocker add
 ```
 ![Clocker add step](./docs/assets/readme-add.png)
 
-### Step 2: Start your server
+### Step 3: Start your server
 ```shell script
 clocker start my-test-server
 ```
 ![Clocker start step](./docs/assets/readme-start.png)
 
-### Step 3: Deploy your project
+### Step 4: Deploy your project
 ```shell script
 clocker deploy my-test-server ./test/docker-compose.test.yml 
 ```
 ![Clocker deploy step](./docs/assets/readme-deploy.png)
 
-### Step 4: Check server
+### Step 5: Check server
 ```shell script
 clocker list
 ```
@@ -106,19 +116,30 @@ In your favorite cli, run:
 clocker init
 ```
 
-This will create a `.clocker` folder in your home directory, where clocker stores stuff about your servers.
+This will create a `.clocker` folder in your home directory, where clocker stores stuff about your hosters and servers.
 
-### List all configured servers
-You can get an overview of all servers configured, whether they are running or not and which projects have been deployed.
+### List all configured hosters with servers
+You can get an overview of all hosters and servers configured, whether they are running or not and which projects have been deployed.
 ```shell script
 clocker list
 ```
+
+### Register a hoster
+First of all you need to register a hoster. This is like an local instance of your cloud server provider and will register some remote resources like your ssh key.  
+That way you can easily add multiple server to the same hoster.
+```shell script
+clocker hoster register
+```
+A configuration wizard will ask you which cloud server provider you want to use and some questions based on your choice. After that, some resources will be created via terraform.  
+There is no server created yet.
+
+You can see all files that are created for your hoster in `.clocker/hosters/<your-hoster-id>` in your home directory.
 
 ### Add a server
 ```shell script
 clocker add
 ```
-A configuration wizard will ask you some questions about which provider you want to use and other configuration.  
+Another wizard will ask you some questions about which of your registered hoster you want to use and other configuration about the server.  
 **Nothing will be actually created yet**, so its save to play around.
 
 Under the hood, we use terraform to create templates on how your server should look like.  
@@ -168,6 +189,13 @@ If you want to completely remove a server in clocker, run:
 ```shell script
 clocker remove <my-server-id>
 ```
+
+### Unregister a hoster
+You can remove a hoster from clocker once all servers for that are removed by running:
+```shell script
+clocker hoster unregister <my-hoster-id>
+```
+This will destroy resources created via terraform from this cloud server provider and delete the local hoster directory.
 
 ### Customize / Eject
 clocker saves all configuration it needs to work with your server in a single directory at `.clocker/servers/<your-server-ip>`, including the terraform state.  
