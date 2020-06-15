@@ -9,31 +9,40 @@ We assume you are familiar with clocker, docker and how to manage a minecraft se
 In this example, we use [Hetzner Cloud](https://www.hetzner.com/cloud).  
 It's easy to set up a free account, and their cloud servers start at a [reasonable price](https://www.hetzner.com/cloud). 
 
-You are free to use any provider you want (and we support), it should work anyway.
+You are free to use any provider you want ([and we support](https://github.com/KayDomrose/clocker#Supported-providers)), this example should work anyway.
 
 Go to your [hetzner console](https://console.hetzner.cloud/projects) and create a new project called "minecraft".  
 In your project, go to "Access" > "API Tokens" and generate a new token.
 
 ## Step 2: Install clocker
 If you don't have clocker installed yet, open your favorite console and run `npm install -g @kay.domrose/clocker`.  
-After clocker is installed, initialize it with `clocker init`.
+After clocker is installed, initialize it with `clocker init` from anywhere in your terminal.
 
-## Step 3: Create new server
-Still in your console, run `clocker add`.  
-This will launch clockers server wizard, that will ask you a few questions and create a server template.
+## Step 3: Register a hoster in clocker
+Before we can work with servers, we first need to register a hoster in clocker.  
+This will prepare a cloud server provider by, in case of Hetzner Cloud, setting the API Token generated in step 1 and provide your ssh key.
+That way, you can add any number of servers to a given hoster for different projects.
+
+Run `clocker hoster register` and follow the questions. For this tutorial:
+- Cloud server provider: **Hetzner Cloud**
+- Unique identifier: `hcloud`
+- Hetzner Cloud API-Token: insert the api token you've created in step 1
+- Path to ssh key: in my case its ~/.ssh/id_rsa.pub, but yours may be different
+- Label for ssh: **kays-ssh**
+
+## Step 4: Create new server
+After that, run `clocker add`.  
+This will launch clockers server wizard, that will ask a few questions and create a server template.
 
 If you don't to use Hetzner Cloud, your wizard may ask you other questions, but it shouldn't be too different.
 
-This is what i use:
+This is what I use:
+- Choose your hoster: `hloud
 - Unique id: `minecraft-server`
-- Cloud server provider: **Hetzner Cloud**
-- Path to ssh key: in my case its ~/.ssh/id_rsa.pub, but yours may be different
-- Label for ssh: **kays-ssh**
 - Label for server: **Minecraft**
 - Server type: minecraft requires some resources, especially when you will have some players. I choose a **CX21** for this example.
-- Hetzner Cloud API-Token: insert the api token you've created in step 1
 
-## Step 4: Prepare data directory
+## Step 5: Prepare data directory
 clocker syncs a directory from your pc to the remote server.  
 We can use that to store our minecraft locally while the server is not running.
 
@@ -42,13 +51,13 @@ It's nice to know, but in reality we should not need to visit this place at all.
 
 In case you already have server-files you want to use, copy them to `clocker/servers/minecraft-server/clocker-data/minecraft`. 
 
-## Step 5: Start the server
+## Step 6: Start the server
 Start the server we have configured in step 2 with `clocker start minecraft-server`.
 
 After a few minutes, the server is ready and clocker shows you its ip.  
 Save the ip for later. You'll need that to connect to your minecraft server.
 
-## Step 6: Deploy docker-compose file
+## Step 7: Deploy docker-compose file
 Download this docker-compose file.  
 It declares a service `minecraft`, using a complete [minecraft image](https://hub.docker.com/r/itzg/minecraft-server), and exposes port `25565`.
 
@@ -59,12 +68,12 @@ In your directory where you put the compose file above, run `clocker deploy mine
 
 After a short time, clocker has deployed the minecraft service and mounted your data.
 
-## Step 7: Connect
+## Step 8: Connect
 Open minecraft and add the server to your multiplayer server list.
 
 Use the ip you got in step 5 and add port `25565`. It should look something like this: `XXX.XXX.XXX.XXX:25565`.
 
-## Step 8: Stop the server
+## Step 9: Stop the server
 Once your are done playing and want to stop the server, run `clocker stop minecraft-server`.
 
 
