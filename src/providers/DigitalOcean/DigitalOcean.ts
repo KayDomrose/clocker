@@ -47,6 +47,14 @@ class DigitalOcean extends BaseProvider {
                         title: '1vCPU - 1GB',
                         value: 's-1vcpu-1gb',
                     },
+                    {
+                        title: '1vCPU - 2GB',
+                        value: 's-1vcpu-2gb',
+                    },
+                    {
+                        title: '2vCPU - 2GB',
+                        value: 's-2vcpu-2gb',
+                    },
                 ],
             },
         ];
