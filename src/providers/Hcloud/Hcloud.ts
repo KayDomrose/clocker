@@ -47,6 +47,22 @@ class Hcloud extends BaseProvider {
                         title: 'CX11',
                         value: 'cx11',
                     },
+                    {
+                        title: 'CX21',
+                        value: 'cx21',
+                    },
+                    {
+                        title: 'CX31',
+                        value: 'cx31',
+                    },
+                    {
+                        title: 'CX41',
+                        value: 'cx41',
+                    },
+                    {
+                        title: 'CX51',
+                        value: 'cx51',
+                    },
                 ],
             },
         ];
