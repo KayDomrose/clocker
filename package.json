@@ -20,7 +20,8 @@
     "command": "cross-env ENVIRONMENT=local ts-node --files src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cross-env ENVIRONMENT=production tsc && rsync -avm --include='*.sh' -f 'hide,! */' ./src/providers ./build/src && rsync -avm --include='*.tf' -f 'hide,! */' ./src/providers ./build/src",
-    "link": "npm link"
+    "link": "npm link",
+    "release": "npx release-it"
   },
   "repository": {
     "type": "git",
