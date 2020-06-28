@@ -7,6 +7,7 @@ import {
 import { PromptObject } from 'prompts';
 import * as fs from 'fs';
 import run from '../../helpers/command';
+import { validateId } from '../../helpers/validator';
 
 export interface HcloudConfig extends ProviderHosterVars {
     server_name: string;
@@ -29,7 +30,13 @@ class Hcloud extends BaseProvider {
                 name: 'server_name',
                 message: 'Label for the server (to identify in Hetzner backend)',
                 initial: '',
-                validate: (value) => !value.includes(' '),
+                validate: (value) => {
+                    if (!validateId(value)) {
+                        return 'Invalid character';
+                    }
+
+                    return true;
+                },
             },
             {
                 type: 'select',

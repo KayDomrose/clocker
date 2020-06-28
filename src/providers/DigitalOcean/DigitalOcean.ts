@@ -7,6 +7,7 @@ import {
 import { PromptObject } from 'prompts';
 import * as fs from 'fs';
 import run from '../../helpers/command';
+import { validateId } from '../../helpers/validator';
 
 export interface DigitalOceanConfig extends ProviderHosterVars {
     server_name: string;
@@ -27,8 +28,15 @@ class DigitalOcean extends BaseProvider {
             {
                 type: 'text',
                 name: 'server_name',
-                message: `Label for your ${this.name()} droplet`,
+                message: `Label for your ${this.name()} droplet [a-zA-Z0-9_-]`,
                 initial: '',
+                validate: (value) => {
+                    if (!validateId(value)) {
+                        return 'Invalid character';
+                    }
+
+                    return true;
+                },
             },
             {
                 type: 'select',
