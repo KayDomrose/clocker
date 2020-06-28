@@ -22,10 +22,6 @@ class Hcloud extends BaseProvider {
         return 'Hetzner Cloud';
     }
 
-    getServerInfo(): string {
-        return '';
-    }
-
     getAdditionalServerQuestions(): PromptObject[] {
         return [
             {
@@ -91,11 +87,11 @@ class Hcloud extends BaseProvider {
     }
 
     getTerraformHosterPath(): string {
-        return `${__dirname}/hoster.tf`;
+        return `${__dirname}/hcloud-hoster.tf`;
     }
 
     getTerraformServerPath(): string {
-        return `${__dirname}/server.tf`;
+        return `${__dirname}/hcloud-server.tf`;
     }
 
     async getInitialiseHosterOutput(path: string): Promise<InitialiseHosterOutput> {

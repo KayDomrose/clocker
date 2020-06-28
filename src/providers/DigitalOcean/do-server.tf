@@ -1,26 +1,16 @@
-variable "hcloud_token" {}
+variable "do_token" {}
 variable "server_name" {}
 variable "server_type" {}
-variable "ssh_id" {}
 variable "cloud_init_path" {}
+variable "ssh_id" {}
 
-provider "hcloud" {
-  token = var.hcloud_token
+provider "digitalocean" {
+  token = var.do_token
 }
 
 data "template_cloudinit_config" "config" {
   gzip          = false
   base64_encode = false
-
-  //  part {
-//    content_type = "text/x-shellscript"
-//    content      = <<PART
-//#!/bin/bash
-//cat <<EOF >/root/vars.sh
-//STATIC_IP="1"
-//EOF
-//PART
-//  }
 
   part {
     content_type = "text/x-shellscript"
@@ -28,11 +18,11 @@ data "template_cloudinit_config" "config" {
   }
 }
 
-resource "hcloud_server" "server"  {
+resource "digitalocean_droplet" "server"  {
   name = var.server_name
-  image = "debian-10"
-  server_type = "cx11"
-  location = "nbg1"
+  region = "fra1"
+  image = "debian-10-x64"
+  size = var.server_type
   ssh_keys = [
     var.ssh_id
   ]
@@ -40,5 +30,6 @@ resource "hcloud_server" "server"  {
 }
 
 output "ip_address" {
-  value = hcloud_server.server.ipv4_address
+  value = digitalocean_droplet.server.ipv4_address
 }
+

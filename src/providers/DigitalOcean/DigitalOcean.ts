@@ -1,15 +1,16 @@
-import { BaseProvider, ProviderHosterVars } from '../../classes/BaseProvider';
+import {
+    BaseProvider,
+    InitialiseHosterOutput,
+    ProviderHosterVars,
+    StaticServerVars,
+} from '../../classes/BaseProvider';
 import { PromptObject } from 'prompts';
 import * as fs from 'fs';
-import { allServers } from '../../helpers/servers';
-import DOUniqueServerException from './DOUniqueServerException';
+import run from '../../helpers/command';
 
 export interface DigitalOceanConfig extends ProviderHosterVars {
-    doServerName: string;
-    doServerType: string;
-    doSSHPath: string;
-    doSSHLabel: string;
-    _doToken: string;
+    server_name: string;
+    server_type: string;
 }
 
 class DigitalOcean extends BaseProvider {
@@ -21,27 +22,17 @@ class DigitalOcean extends BaseProvider {
         return 'DigitalOcean';
     }
 
-    getServerInfo(): string {
-        const config = this._config as DigitalOceanConfig;
-        return `${config.doServerName} (${config.doServerType})`;
-    }
-
     getAdditionalServerQuestions(): PromptObject[] {
-        const servers = allServers();
-        if (servers.some((s) => s.provider() instanceof DigitalOcean)) {
-            throw new DOUniqueServerException();
-        }
-
         return [
             {
                 type: 'text',
-                name: 'doServerName',
-                message: `Label for your ${this.name()} droplet (visible in ${this.name()} dashboard)`,
+                name: 'server_name',
+                message: `Label for your ${this.name()} droplet`,
                 initial: '',
             },
             {
                 type: 'select',
-                name: 'doServerType',
+                name: 'server_type',
                 message: 'Server type (CPU - RAM) (https://www.digitalocean.com/pricing/)',
                 choices: [
                     {
@@ -50,9 +41,14 @@ class DigitalOcean extends BaseProvider {
                     },
                 ],
             },
+        ];
+    }
+
+    getAdditionalHosterQuestions(): PromptObject[] {
+        return [
             {
                 type: 'password',
-                name: '_doToken',
+                name: 'do_token',
                 message:
                     'Your Personal access tokens (write scope required) (https://www.digitalocean.com/docs/apis-clis/api/create-personal-access-token/)',
                 validate: (value) => {
@@ -63,14 +59,9 @@ class DigitalOcean extends BaseProvider {
                     return true;
                 },
             },
-        ];
-    }
-
-    getAdditionalHosterQuestions(): PromptObject[] {
-        return [
             {
                 type: 'text',
-                name: 'doSSHPath',
+                name: 'ssh_key_path',
                 message: 'Path to your ssh public key',
                 initial: `${process.env.HOME}/.ssh/id_rsa.pub`,
                 validate: (path: string) => {
@@ -83,7 +74,7 @@ class DigitalOcean extends BaseProvider {
             },
             {
                 type: 'text',
-                name: 'doSSHLabel',
+                name: 'ssh_key_name',
                 message: `Label for your ssh key (to identify in ${this.name()} dashboard)`,
                 initial: `${process.env.USER?.replace(' ', '-')}-ssh`,
             },
@@ -95,10 +86,25 @@ class DigitalOcean extends BaseProvider {
     }
 
     getTerraformServerPath(): string {
-        return `${__dirname}/server.tf`;
+        return `${__dirname}/do-server.tf`;
     }
     getTerraformHosterPath(): string {
-        return `${__dirname}/hoster.tf`;
+        return `${__dirname}/do-hoster.tf`;
+    }
+
+    async getInitialiseHosterOutput(path: string): Promise<InitialiseHosterOutput> {
+        const sshId = await run('terraform', ['output', 'ssh_id'], {
+            cwd: path,
+        });
+        return {
+            ssh_id: sshId?.replace('\n', '') || '',
+        };
+    }
+
+    getStaticServerVars(): StaticServerVars {
+        return {
+            cloud_init_path: `${__dirname}/do-cloud-init.sh`,
+        };
     }
 }
 
