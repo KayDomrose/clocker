@@ -200,7 +200,7 @@ export class Server {
         try {
             await run('scp', [
                 '-r',
-                `${SERVER_USER}@${this._ipAddress}:${this.remote_data_path}`,
+                `${SERVER_USER}@${this._ipAddress}:${this.remote_data_path}/*`,
                 this.data_path,
             ]);
             return true;
