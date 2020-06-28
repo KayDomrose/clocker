@@ -6,7 +6,7 @@ export const BASE_PATH =
         : `${process.env.HOME}/.clocker`;
 export const SERVERS_PATH = `${BASE_PATH}/servers`;
 export const HOSTERS_PATH = `${BASE_PATH}/hosters`;
-export const VERSION = '0.1.0';
+export const VERSION = '0.1.4';
 
 export const TEST_INTERVAL_SECONDS = 10;
 export const TEST_INTERVAL_TRIES = 30;
