@@ -111,7 +111,7 @@ class DigitalOcean extends BaseProvider {
 
     getStaticServerVars(): StaticServerVars {
         return {
-            cloud_init_path: `${__dirname}/do-cloud-init.sh`,
+            cloud_init_path: `${__dirname}/../cloud-init.sh`,
         };
     }
 }

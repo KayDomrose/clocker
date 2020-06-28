@@ -22,6 +22,7 @@ cp /root/.ssh/authorized_keys /home/"$USERNAME"/.ssh/authorized_keys
 useradd -d /home/"$USERNAME" "$USERNAME"
 chown -R "$USERNAME":"$USERNAME" /home/"$USERNAME"
 chmod 0700 /home/"$USERNAME"/.ssh
+sudo usermod --shell /bin/bash "$USERNAME"
 usermod -aG docker "$USERNAME"
 
 # Install nginx
