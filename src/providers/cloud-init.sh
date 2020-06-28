@@ -23,6 +23,7 @@ useradd -d /home/"$USERNAME" "$USERNAME"
 chown -R "$USERNAME":"$USERNAME" /home/"$USERNAME"
 chmod 0700 /home/"$USERNAME"/.ssh
 usermod -aG docker "$USERNAME"
+sudo usermod --shell /bin/bash "$USERNAME"
 
 # Install nginx
 apt install -y nginx

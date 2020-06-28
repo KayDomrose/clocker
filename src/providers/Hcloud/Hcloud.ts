@@ -112,7 +112,7 @@ class Hcloud extends BaseProvider {
 
     getStaticServerVars(): StaticServerVars {
         return {
-            cloud_init_path: `${__dirname}/hcloud-cloud-init.sh`,
+            cloud_init_path: `${__dirname}/../cloud-init.sh`,
         };
     }
 }
