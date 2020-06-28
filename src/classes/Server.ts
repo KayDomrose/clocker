@@ -187,15 +187,15 @@ export class Server {
     }
 
     public async copyDataFromRemote(): Promise<boolean> {
-        if (fs.readdirSync(this.data_path).length > 0) {
-            logHint('Local data found. Backing up ...');
-            const backupDate = new Date().toISOString();
-            const backupData = `${this.data_path}_${backupDate}`;
-            fs.renameSync(this.data_path, backupData);
-            logHint(`Backup local data to ${backupData}`);
-
-            fs.rmdirSync(this.data_path, { recursive: true });
-        }
+        // if (fs.readdirSync(this.data_path).length > 0) {
+        //     logHint('Local data found. Backing up ...');
+        //     const backupDate = new Date().toISOString();
+        //     const backupData = `${this.data_path}_${backupDate}`;
+        //     fs.renameSync(this.data_path, backupData);
+        //     logHint(`Backup local data to ${backupData}`);
+        //
+        //     fs.rmdirSync(this.data_path, { recursive: true });
+        // }
 
         try {
             await run('scp', [
