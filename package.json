@@ -49,7 +49,7 @@
   "dependencies": {
     "@nelsonomuto/axios-request-timeout": "^1.0.4",
     "await-spawn": "^3.0.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "chalk": "^4.0.0",
     "cli-table": "^0.3.1",
     "dotenv": "^8.2.0",
